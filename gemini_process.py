@@ -11,7 +11,7 @@ from google.genai import types
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
 # MongoDB Setup
-mongo_client = MongoClient('mongodb://localhost:27017')
+mongo_client = MongoClient('mongodb+srv://invicube:***REMOVED***@cluster0.qwsfv.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0')
 db = mongo_client['leetcode_db']
 posts_collection = db['posts']
 quality_collection = db['quality_flags']
@@ -19,6 +19,7 @@ processed_collection = db['processed_posts']
 
 # API Keys Setup: list of API keys to rotate through when rate limited
 API_KEYS = [
+    "***REMOVED***",
     "***REMOVED***",
     "***REMOVED***",
     "***REMOVED***"

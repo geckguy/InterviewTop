@@ -8,7 +8,7 @@ import openai  # Import the updated openai module
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
 # MongoDB Connection (update MONGO_URI if needed)
-MONGO_URI = "mongodb://localhost:27017"
+MONGO_URI = "mongodb+srv://invicube:***REMOVED***@cluster0.qwsfv.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0"
 DATABASE_NAME = "leetcode_db"
 POSTS_COLLECTION_NAME = "posts"
 QUALITY_COLLECTION_NAME = "quality_flags"
