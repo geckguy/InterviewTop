@@ -11,7 +11,7 @@ from google.genai import types
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
 # MongoDB Setup
-mongo_client = MongoClient('mongodb://localhost:27017')
+mongo_client = MongoClient('mongodb+srv://invicube:VPPvMMr3myWv6glO@cluster0.qwsfv.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0')
 db = mongo_client['leetcode_db']
 posts_collection = db['posts']
 quality_collection = db['quality_flags']
@@ -21,7 +21,8 @@ processed_collection = db['processed_posts']
 API_KEYS = [
     "AIzaSyCxtFCD3XIakaC_bhbI_Gve7lOcD43H_cE",
     "AIzaSyAtTl9tSSCjh5DcXDlmRcAl4495bMkuhOc",
-    "AIzaSyAeU-iP-zv6Ra-WerHImaYWDljQJvb2Qj8"
+    "AIzaSyAeU-iP-zv6Ra-WerHImaYWDljQJvb2Qj8",
+    "AIzaSyD-1BVx_SMFPwtWlzkVhWicWgSpJoLOCTk"
 ]
 current_api_key_index = 0
 
