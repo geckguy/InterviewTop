@@ -6,6 +6,7 @@ from itertools import islice
 
 from pymongo import MongoClient
 from google import genai  # Ensure you have installed the google-genai package
+from google.genai import types
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
@@ -16,8 +17,18 @@ posts_collection = db['posts']
 quality_collection = db['quality_flags']
 processed_collection = db['processed_posts']
 
-# Gemini API client configuration (replace with your actual API key)
-gemini_client = genai.Client(api_key="***REMOVED***")
+# API Keys Setup: list of API keys to rotate through when rate limited
+API_KEYS = [
+    "***REMOVED***",
+    "***REMOVED***",
+    "***REMOVED***"
+]
+current_api_key_index = 0
+
+def get_gemini_client():
+    """Returns a Gemini API client using the current API key."""
+    current_key = API_KEYS[current_api_key_index]
+    return genai.Client(api_key=current_key)
 
 # Prompt instructions for batch processing multiple posts
 PROMPT_INSTRUCTIONS = """You are an expert interview analyst and problem setter. You will be given multiple interview experience posts. For each post, perform the following:
@@ -50,8 +61,23 @@ PROMPT_INSTRUCTIONS = """You are an expert interview analyst and problem setter.
 5. Problem Link Extraction:
    - If the post contains any URL to a problem (e.g., "https://leetcode.com/problems/..."), extract all such URLs and output them as an array under "problem_link".
 
-6. Quality Flag:
-   - Include a key "quality_flag" set to 1.
+6. Interview Difficulty:
+   - Assess the overall difficulty of the interview process based on the questions asked, number of rounds, and complexity of tasks.
+   - Categorize as "easy", "medium", or "hard". If not determinable, set "difficulty" to false.
+
+7. Offer Status:
+   - Extract whether the candidate received an offer at the end of the interview process.
+   - Set "offer_status" to one of: "accepted", "rejected", "pending", or false if not mentioned.
+
+8. Quality Flag:
+    - Set "quality_flag" to 1 if the post contains meaningful interview details such as: interview rounds, questions asked, interviewer interactions, preparation strategies, results, or company-specific information.
+    - Be inclusive rather than strict - mark as quality (1) if the post offers any substantive interview insights. 
+    - Set to 0 only if the post lacks specific interview experience information.
+9. Quality Reasoning:
+    - Provide "quality_reasoning": a very brief (5-10 words) explanation justifying the quality_flag value.
+Important
+    - If you set "quality_flag" to 0, do not include any of the other fields (1–7) in your output. Only return quality_flag and quality_reasoning.
+    - If you set "quality_flag" to 1, then return all fields (1–9) in your final JSON.
 
 Return your output as structured JSON for each post in the same order as given below. Do not include any extra commentary.
 
@@ -70,17 +96,40 @@ def grouper(iterable, n):
 def call_gemini_batch(prompt_text):
     """
     Calls the Gemini API with the combined prompt for a batch of posts.
+    Loops through the API keys if a rate limit or similar error occurs.
     Returns the raw response text if successful, else None.
     """
-    try:
-        response = gemini_client.models.generate_content(
-            model="gemini-2.5-pro-exp-03-25",
-            contents=[prompt_text]
-        )
-        return response.text  # raw output
-    except Exception as e:
-        logging.error(f"Error calling Gemini API: {e}")
-        return None
+    global current_api_key_index
+    max_attempts = len(API_KEYS)
+    attempt = 0
+
+    while attempt < max_attempts:
+        gemini_client = get_gemini_client()
+        try:
+            response = gemini_client.models.generate_content(
+                model="gemini-2.5-pro-exp-03-25",
+                contents=[prompt_text],
+                config=types.GenerateContentConfig(
+                    system_instruction="You are an expert interview analyst and problem setter. Analyze interview experience posts and extract structured information according to the instructions provided. Return only JSON output without additional commentary."
+                )
+            )
+            return response.text  # raw output
+        except Exception as e:
+            error_message = str(e).lower()
+            logging.error(f"Error calling Gemini API with API key {API_KEYS[current_api_key_index]}: {e}")
+            # Check if error indicates rate limiting or similar issue
+            if "rate limit" in error_message or "quota" in error_message:
+                logging.info("Rate limit encountered. Switching API key.")
+                # Rotate to the next API key
+                current_api_key_index = (current_api_key_index + 1) % len(API_KEYS)
+                attempt += 1
+                # Brief pause before retrying
+                time.sleep(1)
+            else:
+                # For other errors, do not retry with a different API key.
+                break
+    logging.error("All API keys have been exhausted or a non-rate-limit error occurred.")
+    return None
 
 def parse_gemini_output(output_text):
     """
@@ -135,7 +184,7 @@ def parse_gemini_output(output_text):
 
     return results
 
-def process_quality_posts(batch_size=5):
+def process_quality_posts(batch_size):
     """
     Processes posts that have a quality_flag of 1 from the quality_flags collection,
     filters out those already in processed_posts,
