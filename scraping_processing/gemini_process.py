@@ -22,7 +22,8 @@ API_KEYS = [
     "AIzaSyCxtFCD3XIakaC_bhbI_Gve7lOcD43H_cE",
     "AIzaSyAtTl9tSSCjh5DcXDlmRcAl4495bMkuhOc",
     "AIzaSyAeU-iP-zv6Ra-WerHImaYWDljQJvb2Qj8",
-    "AIzaSyD-1BVx_SMFPwtWlzkVhWicWgSpJoLOCTk"
+    "AIzaSyD-1BVx_SMFPwtWlzkVhWicWgSpJoLOCTk",
+    "AIzaSyB-KiF1jaQhdQ5GvOOmi-6egkurmLTebyg"
 ]
 current_api_key_index = 0
 
@@ -262,4 +263,4 @@ def process_quality_posts(batch_size):
     logging.info("Processing complete. %d posts processed.", processed_count)
 
 if __name__ == "__main__":
-    process_quality_posts(batch_size=7)
+    process_quality_posts(batch_size=10)
