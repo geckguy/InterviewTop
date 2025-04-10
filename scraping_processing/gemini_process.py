@@ -22,6 +22,7 @@ API_KEYS = [
     "***REMOVED***",
     "***REMOVED***",
     "***REMOVED***",
+    "***REMOVED***",
     "***REMOVED***"
 ]
 current_api_key_index = 0
@@ -262,4 +263,4 @@ def process_quality_posts(batch_size):
     logging.info("Processing complete. %d posts processed.", processed_count)
 
 if __name__ == "__main__":
-    process_quality_posts(batch_size=7)
+    process_quality_posts(batch_size=10)
