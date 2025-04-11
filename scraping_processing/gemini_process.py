@@ -32,59 +32,88 @@ def get_gemini_client():
     current_key = API_KEYS[current_api_key_index]
     return genai.Client(api_key=current_key)
 
-# Prompt instructions for batch processing multiple posts
-PROMPT_INSTRUCTIONS = """You are an expert interview analyst and problem setter. You will be given multiple interview experience posts. For each post, perform the following:
-
-1. Candidate Background Extraction:
-   - Extract the company name where the interview took place. If not mentioned, set "company" to false.
-   - Extract the candidate's position. If not mentioned, set "position" to false.
-   - Extract the interview or company location. If not mentioned, set "location" to false.
-   - Categorize the position into one of three categories: "junior", "senior", or "above senior". If not determinable, set "seniority" to false.
-
-2. Interview Details:
-   - For each interview round, output an object with:
-       "round_number": (e.g., 1, 2, 3),
-       "type": (e.g., "Technical (Coding)", "Design", "HR"),
-       "questions": an array of concise bullet points summarizing the round.
-
-3. LeetCode-Style Questions:
-   - For each coding round in the post, generate a complete LeetCode‑style problem. Output these as an array under "leetcode_questions". Each problem must include:
-       - "problem_name"
-       - "problem_statement": a clear, detailed description
-       - "function_signature"
-       - "test_cases": an array of example test cases, each with "input", "output", and "explanation".
-
-4. Design Questions:
-   - For each design round (LLD/HLD) in the post, generate a concise design prompt. Output these as an array under "design_questions". Each design prompt should include:
-       - "design_task": a short title
-       - "description": a brief description of the design challenge
-       - "guiding_questions": an array of guiding questions.
-
-5. Problem Link Extraction:
-   - If the post contains any URL to a problem (e.g., "https://leetcode.com/problems/..."), extract all such URLs and output them as an array under "problem_link".
-
-6. Interview Difficulty:
-   - Assess the overall difficulty of the interview process based on the questions asked, number of rounds, and complexity of tasks.
-   - Categorize as "easy", "medium", or "hard". If not determinable, set "difficulty" to false.
-
-7. Offer Status:
-   - Extract whether the candidate received an offer at the end of the interview process.
-   - Set "offer_status" to one of: "accepted", "rejected", "pending", or false if not mentioned.
-
-8. Quality Flag:
-    - Set "quality_flag" to 1 if the post contains meaningful interview details such as: interview rounds, questions asked, interviewer interactions, preparation strategies, results, or company-specific information.
-    - Be inclusive rather than strict - mark as quality (1) if the post offers any substantive interview insights. 
-    - Set to 0 only if the post lacks specific interview experience information.
-9. Quality Reasoning:
-    - Provide "quality_reasoning": a very brief (5-10 words) explanation justifying the quality_flag value.
-Important
-    - If you set "quality_flag" to 0, do not include any of the other fields (1–7) in your output. Only return quality_flag and quality_reasoning.
-    - If you set "quality_flag" to 1, then return all fields (1–9) in your final JSON.
-
-Return your output as structured JSON for each post in the same order as given below. Do not include any extra commentary.
-
+PROMPT_INSTRUCTIONS ="""You are an expert interview analyst. For each post:
+1. Determine if the post has sufficient technical and interview details:
+   - If not, set "quality_flag" = 0 and return only:
+       {
+         "quality_flag": 0,
+         "quality_reasoning": "<5–10 words here>"
+       }
+   - If yes, set "quality_flag" = 1.
+2. If "quality_flag" = 1, return a JSON object with:
+   - company (omit if not found)
+   - position (omit if not found)
+   - location (omit if not found)
+   - seniority ("junior", "senior", or "above senior"; omit if unknown)
+   - interview_details: array of { round_number, type ("Technical (Coding)", "Design", "HR", etc.), questions[] }
+     - If only partial round info is given, fill in missing details logically and minimally based on typical software dev interviews.
+   - leetcode_questions: array of { problem_name, problem_statement, function_signature, test_cases[] }
+     - Each test case must have "input", "output", "explanation".
+     - If partial, carefully expand to a coherent set of test cases.
+   - design_questions: array of { design_task, description, guiding_questions[] }
+     - If partial, expand logically in line with the context.
+   - problem_link: array of any relevant URLs (e.g., LeetCode)
+   - difficulty: "easy", "medium", or "hard" (omit if unknown)
+   - offer_status: "accepted", "rejected", "pending" (omit if unknown)
+   - compensation_details (omit if not found)
+   - quality_flag: 1
+   - quality_reasoning: a 5–10 word justification
+No extra commentary. Provide one JSON object per post, in the order given.
 Posts:
 """
+# # Prompt instructions for batch processing multiple posts
+# PROMPT_INSTRUCTIONS = """You are an expert interview analyst and problem setter. You will be given multiple interview experience posts. For each post, perform the following:
+
+# 1. Candidate Background Extraction:
+#    - Extract the company name where the interview took place. If not mentioned, omit the company field entirely.
+#    - Extract the candidate's position. If not mentioned, omit the position field.
+#    - Extract the interview or company location. If not mentioned, omit the location field.
+#    - Categorize the position into one of three categories: "junior", "senior", or "above senior". If not determinable, omit the seniority field.
+
+# 2. Interview Details:
+#    - For each interview round, output an object with:
+#        "round_number": (e.g., 1, 2, 3),
+#        "type": (e.g., "Technical (Coding)", "Design", "HR"),
+#        "questions": an array of concise bullet points summarizing the round.
+
+# 3. LeetCode-Style Questions:
+#    - For each coding round in the post, generate a complete LeetCode style problem. Output these as an array under "leetcode_questions". Each problem must include:
+#        - "problem_name"
+#        - "problem_statement": a clear, detailed description
+#        - "function_signature"
+#        - "test_cases": an array of example test cases, each with "input", "output", and "explanation".
+
+# 4. Design Questions:
+#    - For each design round (LLD/HLD) in the post, generate a concise design prompt. Output these as an array under "design_questions". Each design prompt should include:
+#        - "design_task": a short title
+#        - "description": a brief description of the design challenge
+#        - "guiding_questions": an array of guiding questions.
+
+# 5. Problem Link Extraction:
+#    - If the post contains any URL to a problem (e.g., "https://leetcode.com/problems/..."), extract all such URLs and output them as an array under "problem_link".
+
+# 6. Interview Difficulty:
+#    - Assess the overall difficulty of the interview process based on the questions asked, number of rounds, and complexity of tasks.
+#    - Categorize as "easy", "medium", or "hard".  If not determinable, omit the difficulty field.
+
+# 7. Offer Status:
+#    - Extract whether the candidate received an offer at the end of the interview process.
+#    - Set "offer_status" to one of: "accepted", "rejected", "pending". If not mentioned, omit the offer_status field.
+
+# 8. Quality Flag:
+#     - Set "quality_flag" to 1 if the post contains meaningful interview details such as: interview rounds, questions asked, interviewer interactions, preparation strategies, results, or company-specific information.
+#     - Be inclusive rather than strict - mark as quality (1) if the post offers any substantive interview insights. 
+#     - Set to 0 only if the post lacks specific interview experience information.
+# 9. Quality Reasoning:
+#     - Provide "quality_reasoning": a very brief (5-10 words) explanation justifying the quality_flag value.
+# Important
+#     - If you set "quality_flag" to 0, do not include any of the other fields (1–7) in your output. Only return quality_flag and quality_reasoning.
+#     - If you set "quality_flag" to 1, then return all fields (1–9) in your final JSON.
+
+# Return your output as structured JSON for each post in the same order as given below. Do not include any extra commentary.
+
+# Posts:
+# """
 
 def grouper(iterable, n):
     """Yield successive n-sized chunks from iterable."""
@@ -263,4 +292,4 @@ def process_quality_posts(batch_size):
     logging.info("Processing complete. %d posts processed.", processed_count)
 
 if __name__ == "__main__":
-    process_quality_posts(batch_size=10)
+    process_quality_posts(batch_size=5)
