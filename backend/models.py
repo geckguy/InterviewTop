@@ -1,5 +1,5 @@
 from pydantic import BaseModel, HttpUrl, field_validator
-from typing import List, Optional
+from typing import List, Optional, Any, Union
 
 class InterviewRound(BaseModel):
     round_number: int
@@ -7,9 +7,9 @@ class InterviewRound(BaseModel):
     questions: List[str]
 
 class TestCase(BaseModel):
-    input: str
-    output: str
-    explanation: str
+    input: Any
+    output: Any
+    explanation: Optional[str] = None
 
 class LeetcodeQuestion(BaseModel):
     problem_name: str
@@ -28,9 +28,9 @@ class InterviewExperience(BaseModel):
     seniority: Optional[str] = None
     location: Optional[str] = None
     interview_details: List[InterviewRound]
-    leetcode_questions: List[LeetcodeQuestion]
-    design_questions: List[DesignQuestion] = []
-    problem_link: List[HttpUrl] = []
+    leetcode_questions: Optional[List[LeetcodeQuestion]] = [] # Make optional if it might be missing
+    design_questions: Optional[List[DesignQuestion]] = []
+    problem_link: Optional[List[HttpUrl]] = []
     
     # Additional fields that might be missing in the DB are marked as optional.
     difficulty: Optional[str] = None
@@ -40,9 +40,16 @@ class InterviewExperience(BaseModel):
     topicId: Optional[int] = None
     id: Optional[str] = None
 
-    # Pydantic V2 style field validator to convert boolean False to an empty string.
-    @field_validator("position", "seniority", "location", mode="before")
-    def convert_false_to_empty(cls, v):
-        if v is False:
+    # Add validators for other potentially problematic fields if necessary
+    # Example: Ensure lists are always lists even if null/missing in DB
+    @field_validator("interview_details", "leetcode_questions", "design_questions", "problem_link", mode="before")
+    def ensure_list(cls, v):
+        return v if isinstance(v, list) else []
+
+    @field_validator("position", "seniority", "location", "company", "difficulty", "offer_status", mode="before")
+    def convert_false_or_none_to_empty(cls, v):
+        if v is False or v is None:
             return ""
+        if not isinstance(v, str): # Ensure it's a string if not False/None
+            return str(v)
         return v
