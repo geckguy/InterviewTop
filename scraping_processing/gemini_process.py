@@ -21,9 +21,10 @@ processed_collection = db['processed_posts']
 API_KEYS = [
     "AIzaSyCxtFCD3XIakaC_bhbI_Gve7lOcD43H_cE",
     "AIzaSyAtTl9tSSCjh5DcXDlmRcAl4495bMkuhOc",
-    "AIzaSyAeU-iP-zv6Ra-WerHImaYWDljQJvb2Qj8",
+    "AIzaSyAeU-iP-zv6Ra-WerHImaYWDljQJvb2Qj8",  
     "AIzaSyD-1BVx_SMFPwtWlzkVhWicWgSpJoLOCTk",
-    "AIzaSyB-KiF1jaQhdQ5GvOOmi-6egkurmLTebyg"
+    "AIzaSyB-KiF1jaQhdQ5GvOOmi-6egkurmLTebyg",
+    "AIzaSyAjFwi2L4vNUcmy5pcIgLe4KINcHg4k1_U"
 ]
 current_api_key_index = 0
 
