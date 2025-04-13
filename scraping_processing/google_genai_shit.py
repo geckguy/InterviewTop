@@ -527,4 +527,4 @@ Posts:
 """
 
 if __name__ == "__main__":
-    process_quality_posts(batch_size=6)
+    process_quality_posts(batch_size=8)
