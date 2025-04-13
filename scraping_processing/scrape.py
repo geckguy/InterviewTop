@@ -7,7 +7,7 @@ from pymongo import MongoClient
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
 # MongoDB Setup
-client = MongoClient('mongodb://localhost:27017')
+client = MongoClient('mongodb+srv://invicube:***REMOVED***@cluster0.qwsfv.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0')
 db = client['leetcode_db']
 collection = db['posts']
 
@@ -81,16 +81,16 @@ def fetch_post_items(skip, first=100):
           }
         }""",
         "variables": {
-            "orderBy": "MOST_RECENT",
-            "keywords": ["google"],
-            "tagSlugs": [],
+            "orderBy": "HOT",
+            "keywords": ["apple"],
+            "tagSlugs": [""],
             "skip": skip,
             "first": first
         },
         "operationName": "discussPostItems"
     }
     return fetch_with_retry(graphql_url, headers_list, payload)
-
+#HOT, MOST_RECENT, MOST_VOTES
 def fetch_post_detail(topicId):
     payload = {
         "query": """
@@ -112,7 +112,7 @@ def fetch_post_detail(topicId):
     return fetch_with_retry(graphql_url, headers_list, payload)
 
 # Main scraper loop
-skip, first, has_next = 100, 100, True
+skip, first, has_next = 0, 100, True
 
 while has_next:
     try:
