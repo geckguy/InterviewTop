@@ -6,6 +6,8 @@ client = motor.motor_asyncio.AsyncIOMotorClient(MONGO_DETAILS)
 
 # Change the database name to leetcode_db
 database = client.leetcode_db
+# Filtered posts (only quality_flag=1) and original posts
+filtered_posts_collection = database.get_collection("filtered_posts")
+posts_collection = database.get_collection("posts")
 
-# Change the collection to processed_posts
-processed_posts_collection = database.get_collection("processed_posts")
+

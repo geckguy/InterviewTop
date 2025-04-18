@@ -12,3 +12,4 @@ app.include_router(share_experience_router, tags=["share-experience"])
 @app.get("/")
 async def read_root():
     return {"message": "Welcome to the Interview Experience API"}
+
