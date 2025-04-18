@@ -1,26 +1,20 @@
-# routes/share_experience.py
 from fastapi import APIRouter, HTTPException
-from models import InterviewExperience  # import the updated InterviewExperience model
-from database import processed_posts_collection
-from bson import ObjectId
+from models import InterviewExperience
+from database import filtered_posts_collection, posts_collection
 
 router = APIRouter()
 
 @router.post("/share-experience", response_model=InterviewExperience)
-async def create_experience(experience: InterviewExperience):
-    # Convert the Pydantic model to a dictionary for MongoDB insertion.
-    experience_dict = experience.dict()
-    
-    # Insert the new document into the processed_posts collection.
-    result = await processed_posts_collection.insert_one(experience_dict)
-    
-    # Retrieve the created document using the inserted_id.
-    created_experience = await processed_posts_collection.find_one({"_id": result.inserted_id})
-    if created_experience:
-        # Convert the MongoDB ObjectId to a string and assign it to "id"
-        created_experience["id"] = str(created_experience["_id"])
-        # Optionally, remove the raw _id from the response.
-        del created_experience["_id"]
-        return created_experience
-    
-    raise HTTPException(status_code=500, detail="Experience not created")
+async def create_experience(exp: InterviewExperience):
+    exp_dict = exp.model_dump(by_alias=True, exclude_unset=True)
+    post = await posts_collection.find_one(
+        {"topicId": exp_dict.get("topicId")},
+        {"createdAt": 1, "_id": 0}
+    )
+    if post and post.get("createdAt"):
+        exp_dict["createdAt"] = post["createdAt"]
+    result = await filtered_posts_collection.insert_one(exp_dict)
+    created = await filtered_posts_collection.find_one({"_id": result.inserted_id})
+    if not created:
+        raise HTTPException(500, "Insert failed")
+    return InterviewExperience.model_validate(created)

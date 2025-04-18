@@ -1,8 +1,8 @@
+# models.py
 from pydantic import BaseModel, HttpUrl, Field, field_validator
 from typing import List, Optional, Any
 from datetime import datetime
 from bson import ObjectId
-
 
 class InterviewRound(BaseModel):
     round_number: int
@@ -25,7 +25,6 @@ class DesignQuestion(BaseModel):
     description: Optional[str] = None
     guiding_questions: Optional[List[str]] = None
 
-
 class InterviewExperience(BaseModel):
     id: Optional[str] = Field(None, alias="_id")
 
@@ -34,10 +33,10 @@ class InterviewExperience(BaseModel):
     seniority: Optional[str] = None
     location: Optional[str] = None
 
-    interview_details: List[InterviewRound] = []
-    leetcode_questions: List[LeetcodeQuestion] = []
-    design_questions: List[DesignQuestion] = []
-    problem_link: List[HttpUrl] = []
+    interview_details: Optional[List[InterviewRound]] = None
+    leetcode_questions: Optional[List[LeetcodeQuestion]] = None
+    design_questions: Optional[List[DesignQuestion]] = None
+    problem_link: Optional[List[HttpUrl]] = None
 
     difficulty: Optional[str] = None
     offer_status: Optional[str] = None
@@ -45,34 +44,34 @@ class InterviewExperience(BaseModel):
     quality_reasoning: Optional[str] = None
     topicId: Optional[int] = None
 
-    # Flattened from "posts" collection
-    updatedAt: Optional[datetime] = None
+    # Use createdAt for sorting and metadata
+    createdAt: Optional[datetime] = None
 
-    # Model Config (Pydantic v2 style)
     model_config = {
         "populate_by_name": True,
         "arbitrary_types_allowed": True,
-        "extra": "ignore",  # ignore any fields not defined here
+        "extra": "ignore",
     }
 
     @field_validator("id", mode="before")
     def convert_objectid_to_str(cls, v):
-        if isinstance(v, ObjectId):
-            return str(v)
-        return v
+        return str(v) if isinstance(v, ObjectId) else v
 
-    @field_validator("position", "seniority", "location", "company", "difficulty", "offer_status", mode="before")
-    def convert_false_or_none_to_empty(cls, v):
-        if v is False or v is None:
-            return ""
-        if not isinstance(v, str):
-            return str(v)
-        return v
+    @field_validator(
+        "company", "position", "seniority", "location",
+        "difficulty", "offer_status", mode="before"
+    )
+    def false_or_empty_to_none(cls, v):
+        if v is False or v is None or (isinstance(v, str) and not v.strip()):
+            return None
+        return str(v)
 
-    @field_validator("interview_details", "leetcode_questions", "design_questions", "problem_link", mode="before")
-    def ensure_list(cls, v):
-        return v if isinstance(v, list) else []
-
+    @field_validator(
+        "interview_details", "leetcode_questions", "design_questions", "problem_link",
+        mode="before"
+    )
+    def normalize_list_fields(cls, v):
+        return v if isinstance(v, list) else None
 
 class PaginatedInterviewResponse(BaseModel):
     total_count: int
