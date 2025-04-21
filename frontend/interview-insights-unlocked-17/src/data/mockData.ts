@@ -77,23 +77,11 @@ export const generateMockInterviews = (count: number): InterviewCardProps[] => {
 };
 
 // Generate mock interviews
-export const mockInterviews = generateMockInterviews(20);
 
 // Get unique companies from mock interviews
-export const getUniqueCompanies = (): string[] => {
-  const companies = mockInterviews.map(interview => interview.company);
-  return Array.from(new Set(companies));
-};
 
 // Filter interviews by company
-export const filterInterviewsByCompany = (company: string | null): InterviewCardProps[] => {
-  if (!company) return mockInterviews;
-  return mockInterviews.filter(interview => interview.company === company);
-};
+
 
 // Get featured interviews (top 3 with most likes)
-export const getFeaturedInterviews = (): InterviewCardProps[] => {
-  return [...mockInterviews]
-    .sort((a, b) => b.likes - a.likes)
-    .slice(0, 3);
-};
+
