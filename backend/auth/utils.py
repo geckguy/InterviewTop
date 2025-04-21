@@ -7,6 +7,14 @@ from fastapi.security import OAuth2PasswordBearer
 from pydantic import EmailStr
 import os
 from dotenv import load_dotenv
+import bcrypt
+
+# Monkey patch to fix bcrypt version detection issue
+import sys
+if not hasattr(bcrypt, '__about__'):
+    sys.modules['bcrypt.__about__'] = type('obj', (object,), {
+        '__version__': bcrypt.__version__
+    })
 
 from models import TokenData, UserInDB, User
 from database import users_collection
@@ -22,8 +30,14 @@ if not SECRET_KEY:
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = int(os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES", "30"))
 
-# Password handling
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+# Password handling with fixed bcrypt configuration
+pwd_context = CryptContext(
+    schemes=["bcrypt"],
+    deprecated="auto",
+    bcrypt__rounds=12,
+    bcrypt__ident="2b"
+)
+
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="auth/token")
 
 def verify_password(plain_password, hashed_password):
