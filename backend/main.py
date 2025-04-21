@@ -23,8 +23,7 @@ app.include_router(auth_router, prefix="/auth", tags=["authentication"])
 app.include_router(
     interviews_router, 
     prefix="/interviews", 
-    tags=["interviews"],
-    dependencies=[Depends(get_current_user)]
+    tags=["interviews"]
 )
 
 # Include the share_experience router with authentication
