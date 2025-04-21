@@ -1,13 +1,38 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, Depends
+from fastapi.middleware.cors import CORSMiddleware
 from routes.interviews import router as interviews_router
 from routes.share_experience import router as share_experience_router
+from routes.auth import router as auth_router
+from auth.utils import get_current_user
 
 app = FastAPI()
 
-# Include your interview routes (you can add more routers as your project grows)
-app.include_router(interviews_router, prefix="/interviews", tags=["interviews"])
-# Include the share_experience router.
-app.include_router(share_experience_router, tags=["share-experience"])
+# Add CORS middleware
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # For development. In production, specify the actual origins
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+# Include authentication routes - these don't require authentication
+app.include_router(auth_router, prefix="/auth", tags=["authentication"])
+
+# Include protected routes - these require authentication
+app.include_router(
+    interviews_router, 
+    prefix="/interviews", 
+    tags=["interviews"],
+    dependencies=[Depends(get_current_user)]
+)
+
+# Include the share_experience router with authentication
+app.include_router(
+    share_experience_router, 
+    tags=["share-experience"],
+    dependencies=[Depends(get_current_user)]
+)
 
 @app.get("/")
 async def read_root():
