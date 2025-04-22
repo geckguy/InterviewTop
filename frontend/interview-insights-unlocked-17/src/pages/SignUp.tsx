@@ -8,6 +8,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Checkbox } from "@/components/ui/checkbox";
 import { Eye, EyeOff, UserPlus } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
+import { register as registerApi, RegisterData } from "@/api/auth";
 
 const SignUp = () => {
   const [email, setEmail] = useState("");
@@ -45,32 +46,29 @@ const SignUp = () => {
     setIsLoading(true);
     
     try {
-      // This is a mock registration - will be replaced with actual auth
-      setTimeout(() => {
-        if (email && password && name) {
-          toast({
-            title: "Success!",
-            description: "Your account has been created successfully.",
-          });
-          navigate("/signin");
-        } else {
-          toast({
-            title: "Error",
-            description: "Please fill in all required fields.",
-            variant: "destructive",
-          });
-        }
-        setIsLoading(false);
-      }, 1000);
-    } catch (error) {
-      toast({
-        title: "Error",
-        description: "Something went wrong. Please try again.",
-        variant: "destructive",
-      });
-      setIsLoading(false);
-    }
-  };
+      const registerData: RegisterData = {
+                email,
+              password,
+                username: name, // Assuming 'name' maps to 'username'
+                // phone: optionalPhoneValue, // Add if you collect phone
+              };
+              await registerApi(registerData); // Call the API
+              toast({
+              title: "Success!",
+                description: "Your account has been created successfully. Please sign in.",
+              });
+              navigate("/signin"); // Redirect to sign in page after successful registration
+            } catch (error: any) {
+              const errorMessage = error?.response?.data?.detail || "Registration failed. Please try again.";
+              toast({
+                title: "Error",
+                description: errorMessage,
+                variant: "destructive",
+              });
+            } finally {
+              setIsLoading(false);
+            }
+          };
   
   return (
     <div className="flex min-h-screen items-center justify-center bg-gray-50 px-4 py-12 sm:px-6 lg:px-8">

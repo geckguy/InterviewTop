@@ -9,18 +9,21 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
-import { toast } from "@/components/ui/use-toast";
+import { useToast } from "@/components/ui/use-toast"; 
 import { Check, Info, Briefcase, Building, FileText, Star, AlertTriangle, Users } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Separator } from "@/components/ui/separator";
 import { Progress } from "@/components/ui/progress";
-
+import { shareExperience as shareExperienceApi } from "@/api/interviews"; 
+import { InterviewExperience } from "@/types/backend";
 const ShareExperience = () => {
   const navigate = useNavigate();
   const [formSubmitted, setFormSubmitted] = useState(false);
   const [formStep, setFormStep] = useState(1);
   const [formProgress, setFormProgress] = useState(25);
+  const { toast } = useToast(); // Initialize toast
+  const [isLoading, setIsLoading] = useState(false); // Add loading 
   
   // Form state
   const [formData, setFormData] = useState({
@@ -71,16 +74,49 @@ const ShareExperience = () => {
     setFormProgress(newStep * 25);
   };
 
-  const handleSubmit = (event: React.FormEvent) => {
+  const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
-    
-    // Here we would normally submit the data to a backend
-    toast({
-      title: "Experience shared successfully!",
-      description: "Thank you for contributing to the community.",
-    });
-    
-    setFormSubmitted(true);
+     // Add validation for the final step if needed
+    if (formStep !== 4) {
+          toast({ title: "Incomplete Form", description: "Please review all steps.", variant: "destructive" });
+          return;
+    }
+  
+      setIsLoading(true);
+      try {
+        // Prepare data for the backend
+        // NOTE: This is a simplified mapping. A real app might need more complex structuring
+        //       especially for nested fields like interview_details, leetcode_questions etc.
+        //       The current backend model seems flexible with Optional fields.
+        const experienceData: Partial<InterviewExperience> = {
+          company: formData.company,
+          position: formData.position,
+          offer_status: formData.result, // Map frontend 'result' to backend 'offer_status'
+        difficulty: formData.difficulty,
+          // Map other fields like interviewProcess, experience, tips, questions
+          // potentially into quality_reasoning or dedicated fields if backend supports it.
+          // For now, let's add experience to quality_reasoning as an example:
+          quality_reasoning: `Process: ${formData.interviewProcess}\nExperience: ${formData.experience}\nQuestions: ${formData.questions}\nTips: ${formData.tips}`,
+          // anonymous flag needs handling if backend supports it
+        };
+  
+        await shareExperienceApi(experienceData);
+  
+        toast({
+        title: "Experience shared successfully!",
+          description: "Thank you for contributing to the community.",
+        });
+        setFormSubmitted(true); // Show success screen
+      } catch (error: any) {
+        const errorMessage = error?.response?.data?.detail || "Failed to share experience. Please try again.";
+        toast({
+          title: "Error",
+          description: errorMessage,
+          variant: "destructive",
+        });
+      } finally {
+        setIsLoading(false);
+      }
   };
 
   if (formSubmitted) {
@@ -371,7 +407,7 @@ const ShareExperience = () => {
                         Continue
                       </Button>
                     ) : (
-                      <Button type="submit" className="ml-auto bg-brand-purple hover:bg-brand-purple-dark">
+                      <Button type="submit" className="ml-auto bg-brand-purple hover:bg-brand-purple-dark" disabled={isLoading}>
                         Submit Experience
                       </Button>
                     )}

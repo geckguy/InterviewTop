@@ -1,9 +1,27 @@
 // src/api/interviews.ts
 import api from "./client";
-
+import { InterviewExperience } from "@/types/backend";
 type RawInterview = {
   _id: string;
   [key: string]: any;
+};
+
+export interface CompanyInfo {
+  name: string;
+  interview_count: number;
+}
+
+export const fetchCompaniesSummary = async (): Promise<CompanyInfo[]> => {
+  const response = await api.get<CompanyInfo[]>("/interviews/companies-summary"); // Adjust URL if needed
+  return response.data;
+};
+
+export const shareExperience = async (data: Partial<InterviewExperience>) => {
+  // You might need to transform the flat frontend state `data`
+  // into the nested structure expected by InterviewExperience before sending.
+  // For now, assuming data is already structured correctly.
+  const response = await api.post<InterviewExperience>("/share-experience", data);
+  return response.data;
 };
 
 export const fetchInterviews = async (params?: any) => {
