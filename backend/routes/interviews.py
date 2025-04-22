@@ -2,11 +2,58 @@ from fastapi import APIRouter, HTTPException, Query, Depends
 from models import InterviewExperience, PaginatedInterviewResponse
 from database import filtered_posts_collection
 from bson import ObjectId
+from pydantic import BaseModel
 from typing import List, Optional
 import re
 from auth.utils import get_current_user
 
 router = APIRouter()
+class CompanyInfo(BaseModel):
+    name: str
+    interview_count: int
+
+# Define the new route
+@router.get("/companies-summary", response_model=List[CompanyInfo])
+async def get_companies_summary(
+    # user=Depends(get_current_user) # Uncomment if auth needed
+):
+    pipeline = [
+        # 1. Filter for documents where 'company' exists AND is a string type
+        {
+            "$match": {
+                "company": {
+                    "$ne": None,        # Ensure it's not null
+                    "$type": "string",  # Ensure it's a string type
+                    "$ne": ""           # Optionally ensure it's not an empty string
+                }
+            }
+        },
+        # 2. Group by company name (case-insensitive) and count
+        {
+            "$group": {
+                "_id": {"$toLower": "$company"}, # Now safe to use $toLower
+                "name": {"$first": "$company"},
+                "interview_count": {"$sum": 1}
+            }
+        },
+        # 3. Sort by count descending, then by name ascending
+        {
+            "$sort": {
+                "interview_count": -1,
+                "name": 1
+            }
+        },
+        # 4. Project to match the CompanyInfo model
+        {
+            "$project": {
+                "_id": 0,
+                "name": 1,
+                "interview_count": 1
+            }
+        }
+    ]
+    results = await filtered_posts_collection.aggregate(pipeline).to_list(length=None)
+    return [CompanyInfo(**res) for res in results]
 
 @router.get("/", response_model=PaginatedInterviewResponse)
 async def find_interviews(

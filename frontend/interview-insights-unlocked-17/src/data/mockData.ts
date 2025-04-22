@@ -1,6 +1,17 @@
 
 import { InterviewCardProps } from "@/components/InterviewCard";
-
+export const mockInterviews: InterviewExperience[] = [
+  {
+    id: '1',
+    company: 'Google',
+    role: 'Site Reliability Engineer',
+    result: 'Pass',
+    excerpt: 'Tough system‑design round but I nailed it.',
+    date: new Date('2025-04-15'),
+    // …other InterviewExperience fields
+  },
+  // …more items
+];
 // Generate mock interview experiences
 export const generateMockInterviews = (count: number): InterviewCardProps[] => {
   const companies = [
