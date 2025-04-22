@@ -1,11 +1,12 @@
-from fastapi import APIRouter, HTTPException, Query, Depends
-from models import InterviewExperience, PaginatedInterviewResponse
-from database import filtered_posts_collection
+from fastapi import APIRouter, HTTPException, Query, Depends, status
+from models import InterviewExperience, PaginatedInterviewResponse, User
+from database import filtered_posts_collection, users_collection 
 from bson import ObjectId
-from pydantic import BaseModel
+from pydantic import BaseModel, Field, field_validator, EmailStr
 from typing import List, Optional
 import re
 from auth.utils import get_current_user
+from datetime import datetime 
 
 router = APIRouter()
 class CompanyInfo(BaseModel):
@@ -112,12 +113,28 @@ async def get_recent_experiences(limit: int = Query(5, ge=1, le=50)):
     return page.experiences
 
 @router.get("/{id}", response_model=InterviewExperience)
-async def get_interview(id: str, user=Depends(get_current_user) ):
+async def get_interview(id: str, current_user: User = Depends(get_current_user)):
     if not ObjectId.is_valid(id):
-        raise HTTPException(400, "Invalid ID")
-    doc = await filtered_posts_collection.find_one({"_id": ObjectId(id)})
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid Interview ID")
+
+    post_oid = ObjectId(id) # Variable defined correctly
+
+    # Fetch the interview post
+    doc = await filtered_posts_collection.find_one({"_id": post_oid})
     if not doc:
-        raise HTTPException(404, "Not found")
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Interview not found")
+
+    # --- Add visited post logic ---
+    if current_user.id:
+        user_oid = ObjectId(current_user.id)
+        # Use the correct variable 'post_oid' here
+        await users_collection.update_one(
+            {"_id": user_oid},
+            {"$addToSet": {"visited_posts": post_oid}} # <-- FIX HERE
+            # Optionally add: "$set": {"updated_at": datetime.utcnow()} if you track updates
+        )
+    # -----------------------------
+
     return InterviewExperience.model_validate(doc)
 
 @router.get("/{id}/similar", response_model=List[InterviewExperience])
@@ -137,3 +154,60 @@ async def get_similar(id: str, limit: int = Query(3, ge=1, le=20), user=Depends(
     )
     docs = await cursor.to_list(length=limit)
     return [InterviewExperience.model_validate(d) for d in docs]
+
+
+# --- Visited Posts Summary Model ---
+class VisitedPostSummary(BaseModel):
+    # Use Field alias for _id -> id mapping
+    id: str = Field(..., alias="_id") # Use '...' if ID is always required
+    company: Optional[str] = None
+    position: Optional[str] = None
+    # REMOVED visited_at field as requested
+    # visited_at: Optional[datetime] = None
+
+    model_config = {
+        "populate_by_name": True,
+        "arbitrary_types_allowed": True, # Needed for ObjectId conversion
+    }
+
+    # Define field_validator for id conversion
+    @field_validator("id", mode="before")
+    @classmethod # Use classmethod decorator for validators
+    def convert_objectid_to_str(cls, v):
+        if isinstance(v, ObjectId):
+            return str(v)
+        return v
+# --- Get Visited Posts Endpoint ---
+@router.get("/users/me/visited-posts", response_model=List[VisitedPostSummary])
+async def get_visited_posts(
+    current_user: User = Depends(get_current_user),
+    limit: int = Query(10, ge=1, le=50)
+):
+    if not current_user.id:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="User ID not found in token")
+
+    user_oid = ObjectId(current_user.id)
+    user_data = await users_collection.find_one(
+        {"_id": user_oid},
+        {"visited_posts": 1}
+    )
+
+    if not user_data or "visited_posts" not in user_data:
+        return []
+
+    visited_post_ids = list(user_data["visited_posts"])
+
+    if not visited_post_ids:
+        return []
+
+    # Fetch details for the visited posts
+    visited_posts_cursor = filtered_posts_collection.find(
+        {"_id": {"$in": visited_post_ids}},
+        # Ensure _id is fetched for the model validator
+        {"_id": 1, "company": 1, "position": 1}
+    )
+
+    visited_posts_docs = await visited_posts_cursor.to_list(length=limit)
+
+    # Validate using the model which handles the ID conversion
+    return [VisitedPostSummary.model_validate(doc) for doc in visited_posts_docs]

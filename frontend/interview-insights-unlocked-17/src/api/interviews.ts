@@ -1,9 +1,39 @@
 // src/api/interviews.ts
 import api from "./client";
 import { InterviewExperience } from "@/types/backend";
+import { InterviewCardProps } from "@/components/InterviewCard"; 
+import { toCard } from "@/utils/mapInterview";
 type RawInterview = {
   _id: string;
   [key: string]: any;
+};
+export interface VisitedPostSummary {
+  id: string;
+  company?: string | null;
+  position?: string | null;
+  // Add other fields if your backend endpoint returns more
+}
+
+export const fetchVisitedPosts = async (limit: number = 10): Promise<InterviewCardProps[]> => {
+  // Adjust the endpoint URL if it's under a different prefix (e.g., /users/me/visited-posts)
+  const response = await api.get<VisitedPostSummary[]>(`/interviews/users/me/visited-posts`, {
+     params: { limit }
+  });
+  // Map the summary data to the format needed by InterviewCard
+  // You might need to adjust this mapping based on what VisitedPostSummary contains
+  // and what InterviewCardProps expects. Add default/placeholder values as needed.
+  return response.data.map(summary => ({
+      id: summary.id,
+      company: summary.company ?? 'Unknown Company',
+      role: summary.position ?? 'Unknown Position',
+      // Add default values for fields not present in VisitedPostSummary
+      difficulty: 'Medium', // Placeholder
+      result: 'Pending',    // Placeholder
+      date: new Date(),     // Placeholder - visited date isn't tracked simply
+      likes: 0,             // Placeholder
+      comments: 0,          // Placeholder
+      excerpt: '',          // Placeholder
+  }));
 };
 
 export interface CompanyInfo {
