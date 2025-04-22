@@ -14,16 +14,24 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { formatDistanceToNow } from "date-fns";
 import { Link } from "react-router-dom";
-import { mockInterviews } from "@/data/mockData";
+import { useQuery } from "@tanstack/react-query"; // Import useQuery
+import { fetchVisitedPosts } from "@/api/interviews";
 import { useAuth } from "@/hooks/useAuth";
 const Dashboard = () => {
   const { isAuthenticated, logout } = useAuth();
-  const recentlyRead = mockInterviews.slice(0, 4);
+
 
   if (!isAuthenticated) {
     return <Navigate to="/signin" />;
   }
   const { user } = useAuth();
+    // Fetch visited posts using react-query
+  const { data: visitedPosts, isLoading: isLoadingVisited, error: errorVisited } = useQuery({
+    queryKey: ['visitedPosts', user?.id], // Query key includes user ID
+    queryFn: () => fetchVisitedPosts(5), // Fetch top 5 visited posts, for example
+    enabled: !!user?.id, // Only run query if user ID is available
+  });
+
   return (
     <>
       <Navbar />
@@ -52,13 +60,15 @@ const Dashboard = () => {
                   </div>
                 </CardHeader>
                 <CardContent>
-                  {recentlyRead.length > 0 ? (
+                {isLoadingVisited && <p>Loading visited posts...</p>}
+                  {errorVisited && <p className="text-red-600">Error loading visited posts.</p>}
+                  {!isLoadingVisited && !errorVisited && visitedPosts && visitedPosts.length > 0 ? (
                     <div className="space-y-4">
-                      {recentlyRead.map((interview) => (
+                      {visitedPosts.map((interview) => (
                         <Link key={interview.id}
                         to={`/interview/${interview.id}`}
-                        className="block">
-                          <div className="p-4 border rounded-lg hover:border-brand-purple hover:bg-gray-50 transition-all">
+                        className="block group">
+                          <div className="p-4 border rounded-lg group-hover:border-brand-purple group-hover:bg-gray-50 transition-all">
                             <div className="flex justify-between items-start mb-2">
                               <div>
                                 <h3 className="font-medium text-gray-900">{interview.company}</h3>
