@@ -23,7 +23,7 @@ from database import users_collection
 load_dotenv()
 
 # Security configurations
-SECRET_KEY = os.getenv("SECRET_KEY")
+SECRET_KEY = "4a9db6cc85b3ef8c36fbb03a21af12b08aeafe9c3c6bba7b79412cff51d9cb9a"
 if not SECRET_KEY:
     raise ValueError("No SECRET_KEY environment variable set")
     

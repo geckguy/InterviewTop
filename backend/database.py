@@ -6,7 +6,7 @@ from dotenv import load_dotenv
 # Load environment variables
 load_dotenv()
 
-MONGO_DETAILS = os.getenv("MONGO_URL")
+MONGO_DETAILS = "mongodb+srv://invicube:***REMOVED***@cluster0.qwsfv.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0"
 if not MONGO_DETAILS:
     raise ValueError("No MONGO_URL environment variable set")
     

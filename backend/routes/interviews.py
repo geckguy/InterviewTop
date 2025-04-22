@@ -1,9 +1,10 @@
-from fastapi import APIRouter, HTTPException, Query
+from fastapi import APIRouter, HTTPException, Query, Depends
 from models import InterviewExperience, PaginatedInterviewResponse
 from database import filtered_posts_collection
 from bson import ObjectId
 from typing import List, Optional
 import re
+from auth.utils import get_current_user
 
 router = APIRouter()
 
@@ -64,7 +65,7 @@ async def get_recent_experiences(limit: int = Query(5, ge=1, le=50)):
     return page.experiences
 
 @router.get("/{id}", response_model=InterviewExperience)
-async def get_interview(id: str):
+async def get_interview(id: str, user=Depends(get_current_user) ):
     if not ObjectId.is_valid(id):
         raise HTTPException(400, "Invalid ID")
     doc = await filtered_posts_collection.find_one({"_id": ObjectId(id)})
@@ -73,7 +74,7 @@ async def get_interview(id: str):
     return InterviewExperience.model_validate(doc)
 
 @router.get("/{id}/similar", response_model=List[InterviewExperience])
-async def get_similar(id: str, limit: int = Query(3, ge=1, le=20)):
+async def get_similar(id: str, limit: int = Query(3, ge=1, le=20), user=Depends(get_current_user)):
     if not ObjectId.is_valid(id):
         raise HTTPException(400, "Invalid ID")
     target = await filtered_posts_collection.find_one(
