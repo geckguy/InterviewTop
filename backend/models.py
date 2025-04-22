@@ -1,6 +1,6 @@
 # models.py
 from pydantic import BaseModel, HttpUrl, Field, field_validator, EmailStr
-from typing import List, Optional, Any
+from typing import List, Optional, Any, Set
 from datetime import datetime
 from bson import ObjectId
 
@@ -89,6 +89,7 @@ class UserCreate(UserBase):
 class UserInDB(UserBase):
     id: Optional[str] = Field(None, alias="_id")
     hashed_password: str
+    visited_posts: Optional[Set[ObjectId]] = Field(default_factory=set)
     created_at: Optional[datetime] = Field(default_factory=datetime.utcnow)
     updated_at: Optional[datetime] = Field(default_factory=datetime.utcnow)
     
