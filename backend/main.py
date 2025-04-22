@@ -29,8 +29,7 @@ app.include_router(
 # Include the share_experience router with authentication
 app.include_router(
     share_experience_router, 
-    tags=["share-experience"],
-    dependencies=[Depends(get_current_user)]
+    tags=["share-experience"]
 )
 
 @app.get("/")
