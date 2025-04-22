@@ -6,12 +6,20 @@ export interface RegisterData extends Credentials {
 }
 
 export async function login(data: Credentials) {
-  const body = new URLSearchParams();          // OAuth2PasswordRequestForm
+  const body = new URLSearchParams();
   body.append('username', data.email);
   body.append('password', data.password);
 
-  const res = await api.post('/auth/token', body);
-  localStorage.setItem('access_token', res.data.access_token);
+  const res = await api.post(
+    '/auth/token',
+    body.toString(),
+    {
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+      },
+    }
+  );
+  localStorage.setItem('token', res.data.access_token);
   return res.data;
 }
 
@@ -20,9 +28,9 @@ export async function register(data: RegisterData) {
 }
 
 export async function currentUser() {
-  return api.get('/auth/me');                  // requires token
+  return api.get('/auth/me');
 }
 
 export function logout() {
-  localStorage.removeItem('access_token');
+  localStorage.removeItem('token');
 }

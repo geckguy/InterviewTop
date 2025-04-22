@@ -1,6 +1,6 @@
 
 import { useState } from "react";
-import { useNavigate, Link } from "react-router-dom";
+import { useNavigate, Link, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -8,6 +8,8 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Checkbox } from "@/components/ui/checkbox";
 import { Eye, EyeOff, LogIn } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
+import { useAuth } from "@/hooks/useAuth";
+import { login as loginApi } from '@/api/auth';
 
 const SignIn = () => {
   const [email, setEmail] = useState("");
@@ -18,35 +20,31 @@ const SignIn = () => {
   
   const navigate = useNavigate();
   const { toast } = useToast();
-  
+  const { login } = useAuth();
+  const location = useLocation();
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
-    
+  
     try {
-      // This is a mock authentication - will be replaced with actual auth
-      setTimeout(() => {
-        if (email && password) {
-          toast({
-            title: "Success!",
-            description: "You have successfully signed in.",
-          });
-          navigate("/");
-        } else {
-          toast({
-            title: "Error",
-            description: "Invalid email or password.",
-            variant: "destructive",
-          });
-        }
-        setIsLoading(false);
-      }, 1000);
-    } catch (error) {
+      const { access_token } = await loginApi({ email, password });
+      login(access_token);
+  
       toast({
-        title: "Error",
-        description: "Something went wrong. Please try again.",
-        variant: "destructive",
+        title: 'Logged in!',
+        description: 'Welcome back.',
       });
+  
+      const dest = (location.state as any)?.from?.pathname || '/dashboard';
+      navigate(dest, { replace: true });
+    } catch (err: any) {
+      toast({
+        title: 'Error',
+        description:
+          err?.response?.data?.detail ?? 'Invalid email or password.',
+        variant: 'destructive',
+      });
+    } finally {
       setIsLoading(false);
     }
   };
@@ -57,7 +55,7 @@ const SignIn = () => {
         <div className="text-center">
           <Link to="/" className="text-3xl font-bold text-brand-purple">
             InterviewInsights
-          </Link>
+          </Link>handleSubmit
           <h2 className="mt-6 text-2xl font-bold tracking-tight text-gray-900">
             Sign in to your account
           </h2>
