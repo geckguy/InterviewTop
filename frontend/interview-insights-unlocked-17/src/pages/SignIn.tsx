@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useNavigate, Link, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -6,10 +5,12 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Eye, EyeOff, LogIn } from "lucide-react";
+import { Eye, EyeOff, LogIn, Loader2 } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 import { useAuth } from "@/hooks/useAuth";
 import { login as loginApi } from '@/api/auth';
+import { GoogleLogin, CredentialResponse } from '@react-oauth/google'; // Import Google components
+import { googleSignIn as googleSignInApi } from '@/api/auth'; // Import the new backend API function
 
 const SignIn = () => {
   const [email, setEmail] = useState("");
@@ -17,45 +18,93 @@ const SignIn = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  
+  const [isGoogleLoading, setIsGoogleLoading] = useState(false); // Loading state for Google
+
   const navigate = useNavigate();
   const { toast } = useToast();
-  const { login } = useAuth();
+  const { login } = useAuth(); // Get login function from context
   const location = useLocation();
-  const handleSubmit = async (e: React.FormEvent) => {
+
+  const handleEmailPasswordSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
-  
     try {
-      const { access_token } = await loginApi({ email, password });
-      login(access_token);
-  
-      toast({
-        title: 'Logged in!',
-        description: 'Welcome back.',
-      });
-  
-      const dest = (location.state as any)?.from?.pathname || '/dashboard';
-      navigate(dest, { replace: true });
+      const loginResponse = await loginApi({ email, password });
+      if (loginResponse && loginResponse.access_token) {
+          login(loginResponse.access_token); // Use login from auth context
+          toast({ title: 'Logged in!', description: 'Welcome back.' });
+          const dest = (location.state as any)?.from?.pathname || '/dashboard';
+          navigate(dest, { replace: true });
+      } else {
+          throw new Error("Login failed: No access token received.");
+      }
     } catch (err: any) {
+      console.error("Email/Pass Login Error:", err);
       toast({
-        title: 'Error',
-        description:
-          err?.response?.data?.detail ?? 'Invalid email or password.',
+        title: 'Login Error',
+        description: err?.response?.data?.detail ?? 'Invalid email or password.',
         variant: 'destructive',
       });
     } finally {
       setIsLoading(false);
     }
   };
-  
+
+  // --- Google Sign In Handlers ---
+  const handleGoogleLoginSuccess = async (credentialResponse: CredentialResponse) => {
+    console.log("Google Login Success:", credentialResponse);
+    setIsGoogleLoading(true);
+    if (!credentialResponse.credential) {
+        console.error("Google credential not found in response.");
+        toast({ title: "Google Sign-In Error", description: "Credential missing from Google's response.", variant: "destructive" });
+        setIsGoogleLoading(false);
+        return;
+    }
+
+    try {
+        // Send the Google ID token (credential) to your backend
+        const backendResponse = await googleSignInApi(credentialResponse.credential);
+
+        if (backendResponse && backendResponse.access_token) {
+             // Use the access token from *your* backend to log the user in
+            login(backendResponse.access_token); // Use login from auth context
+            toast({ title: 'Logged in with Google!', description: 'Welcome!' });
+            const dest = (location.state as any)?.from?.pathname || '/dashboard';
+            navigate(dest, { replace: true });
+        } else {
+             throw new Error("Google Sign-In failed: No access token received from backend.");
+        }
+    } catch (error: any) {
+        console.error("Backend Google Sign-In Error:", error);
+        toast({
+            title: 'Google Sign-In Error',
+            description: error?.response?.data?.detail ?? 'Could not sign in with Google. Please try again.',
+            variant: 'destructive',
+        });
+    } finally {
+         setIsGoogleLoading(false);
+    }
+  };
+
+  const handleGoogleLoginError = () => {
+    console.error("Google Login Failed");
+    toast({
+      title: 'Google Sign-In Error',
+      description: 'Google Sign-In failed. Please try again.',
+      variant: 'destructive',
+    });
+    setIsGoogleLoading(false); // Ensure loading state is reset
+  };
+  // --- End Google Sign In Handlers ---
+
+
   return (
     <div className="flex min-h-screen items-center justify-center bg-gray-50 px-4 py-12 sm:px-6 lg:px-8">
       <div className="w-full max-w-md space-y-8">
         <div className="text-center">
           <Link to="/" className="text-3xl font-bold text-brand-purple">
             InterviewInsights
-          </Link>handleSubmit
+          </Link>
           <h2 className="mt-6 text-2xl font-bold tracking-tight text-gray-900">
             Sign in to your account
           </h2>
@@ -66,107 +115,73 @@ const SignIn = () => {
             </Link>
           </p>
         </div>
-        
+
         <Card>
           <CardHeader>
             <CardTitle>Welcome back</CardTitle>
-            <CardDescription>Enter your credentials to access your account</CardDescription>
+            <CardDescription>Enter your credentials or sign in with Google</CardDescription>
           </CardHeader>
           <CardContent>
-            <form onSubmit={handleSubmit} className="space-y-4">
+            {/* Email/Password Form */}
+            <form onSubmit={handleEmailPasswordSubmit} className="space-y-4">
               <div className="space-y-2">
                 <Label htmlFor="email">Email</Label>
-                <Input
-                  id="email"
-                  type="email"
-                  placeholder="name@example.com"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  required
-                />
+                <Input id="email" type="email" placeholder="name@example.com" value={email} onChange={(e) => setEmail(e.target.value)} required disabled={isLoading || isGoogleLoading} />
               </div>
-              
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
                   <Label htmlFor="password">Password</Label>
-                  <Link to="/forgot-password" className="text-xs text-brand-purple hover:text-brand-purple-dark">
-                    Forgot password?
-                  </Link>
+                  {/* <Link to="/forgot-password" ...>Forgot password?</Link> */}
                 </div>
                 <div className="relative">
-                  <Input
-                    id="password"
-                    type={showPassword ? "text" : "password"}
-                    placeholder="••••••••"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    required
-                  />
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="icon"
-                    className="absolute right-2 top-1/2 -translate-y-1/2"
-                    onClick={() => setShowPassword(!showPassword)}
-                  >
+                  <Input id="password" type={showPassword ? "text" : "password"} placeholder="••••••••" value={password} onChange={(e) => setPassword(e.target.value)} required disabled={isLoading || isGoogleLoading} />
+                  <Button type="button" variant="ghost" size="icon" className="absolute right-2 top-1/2 -translate-y-1/2 h-7 w-7" onClick={() => setShowPassword(!showPassword)} aria-label={showPassword ? "Hide password" : "Show password"} disabled={isLoading || isGoogleLoading}>
                     {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                    <span className="sr-only">{showPassword ? "Hide password" : "Show password"}</span>
                   </Button>
                 </div>
               </div>
-              
               <div className="flex items-center space-x-2">
-                <Checkbox 
-                  id="remember" 
-                  checked={rememberMe}
-                  onCheckedChange={(checked) => {
-                    if (typeof checked === 'boolean') {
-                      setRememberMe(checked);
-                    }
-                  }}
-                />
-                <label
-                  htmlFor="remember"
-                  className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                >
-                  Remember me
-                </label>
+                <Checkbox id="remember" checked={rememberMe} onCheckedChange={(checked) => { if (typeof checked === 'boolean') { setRememberMe(checked); } }} disabled={isLoading || isGoogleLoading} />
+                <label htmlFor="remember" className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">Remember me</label>
               </div>
-              
-              <Button type="submit" className="w-full bg-brand-purple hover:bg-brand-purple-dark" disabled={isLoading}>
+              <Button type="submit" className="w-full bg-brand-purple hover:bg-brand-purple-dark" disabled={isLoading || isGoogleLoading}>
                 {isLoading ? (
-                  <span className="flex items-center gap-2">
-                    <svg className="h-4 w-4 animate-spin" viewBox="0 0 24 24">
-                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
-                      <path
-                        className="opacity-75"
-                        fill="currentColor"
-                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                      />
-                    </svg>
-                    Signing in...
-                  </span>
+                  <span className="flex items-center justify-center gap-2"><Loader2 className="h-4 w-4 animate-spin" /> Signing in...</span>
                 ) : (
-                  <span className="flex items-center gap-2">
-                    <LogIn className="h-4 w-4" />
-                    Sign in
-                  </span>
+                  <span className="flex items-center justify-center gap-2"><LogIn className="h-4 w-4" /> Sign in</span>
                 )}
               </Button>
             </form>
+
+            {/* Divider */}
+            <div className="my-6 flex items-center">
+              <div className="flex-grow border-t border-gray-200"></div>
+              <span className="mx-4 flex-shrink text-sm text-gray-500">OR</span>
+              <div className="flex-grow border-t border-gray-200"></div>
+            </div>
+
+            {/* Google Sign In Button */}
+             <div className="flex justify-center">
+                {isGoogleLoading ? (
+                     <Button variant="outline" className="w-full" disabled>
+                         <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Processing...
+                     </Button>
+                ) : (
+                     <GoogleLogin
+                        onSuccess={handleGoogleLoginSuccess}
+                        onError={handleGoogleLoginError}
+                        useOneTap // Optional: Enable One Tap sign-in prompt
+                        shape="pill" // Optional: Button shape
+                        width="320px" // Optional: Adjust width
+                        theme="outline" // Optional: theme
+                        disabled={isLoading} // Disable if email/pass login is happening
+                      />
+                )}
+             </div>
+             {/* End Google Sign In Button */}
+
           </CardContent>
-          <CardFooter className="flex justify-center">
-            <p className="text-xs text-gray-500">
-              By signing in, you agree to our{" "}
-              <Link to="/terms" className="text-brand-purple hover:text-brand-purple-dark">
-                Terms of Service
-              </Link>{" "}
-              and{" "}
-              <Link to="/privacy" className="text-brand-purple hover:text-brand-purple-dark">
-                Privacy Policy
-              </Link>
-            </p>
-          </CardFooter>
+          {/* <CardFooter> ... </CardFooter> */}
         </Card>
       </div>
     </div>

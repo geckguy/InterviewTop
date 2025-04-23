@@ -88,11 +88,12 @@ class UserCreate(UserBase):
 
 class UserInDB(UserBase):
     id: Optional[str] = Field(None, alias="_id")
-    hashed_password: str
+    hashed_password: Optional[str] = None
     visited_posts: Optional[Set[ObjectId]] = Field(default_factory=set)
     created_at: Optional[datetime] = Field(default_factory=datetime.utcnow)
     updated_at: Optional[datetime] = Field(default_factory=datetime.utcnow)
     
+    auth_provider: Optional[str] = Field(default="email")
     model_config = {
         "populate_by_name": True,
         "arbitrary_types_allowed": True,
