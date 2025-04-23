@@ -1,9 +1,10 @@
+// src/App.tsx
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-
+import { GoogleOAuthProvider } from '@react-oauth/google'; 
 import { AuthProvider } from "@/hooks/useAuth";
 import PrivateRoute from "@/components/PrivateRoute";
 
@@ -13,7 +14,7 @@ import About from "./pages/About";
 import SignIn from "./pages/SignIn";
 import SignUp from "./pages/SignUp";
 import Dashboard from "./pages/Dashboard";
-import Explore from "./pages/Explore";
+// import Explore from "./pages/Explore"; // Remove this import
 import Search from "./pages/Search";
 import ShareExperience from "./pages/ShareExperience";
 import InterviewPost from "./pages/InterviewPost";
@@ -21,7 +22,16 @@ import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
 
+const googleClientId = import.meta.env.VITE_GOOGLE_CLIENT_ID;
+
+if (!googleClientId) {
+    console.error("Missing VITE_GOOGLE_CLIENT_ID environment variable!");
+    // Optionally render an error message or prevent app load
+}
+
+
 const App = () => (
+  <GoogleOAuthProvider clientId={googleClientId || "YOUR_CLIENT_ID_FALLBACK"}>
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
       <Toaster />
@@ -44,6 +54,8 @@ const App = () => (
                 </PrivateRoute>
               }
             />
+            {/* --- REMOVE EXPLORE ROUTE --- */}
+            {/*
             <Route
               path="/explore"
               element={
@@ -52,6 +64,8 @@ const App = () => (
                 </PrivateRoute>
               }
             />
+             */}
+             {/* --- END REMOVE EXPLORE ROUTE --- */}
             <Route
               path="/search"
               element={
@@ -84,6 +98,7 @@ const App = () => (
       </AuthProvider>
     </TooltipProvider>
   </QueryClientProvider>
+  </GoogleOAuthProvider>
 );
 
 export default App;
