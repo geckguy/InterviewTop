@@ -1,56 +1,36 @@
+// --- START OF FILE About.tsx ---
 
 import Navbar from "../components/Navbar";
-import Footer from "../components/Footer";
 
 const About = () => {
   return (
     <>
       <Navbar />
-      <div className="min-h-screen bg-gray-50 pt-20 pb-16">
+      <div className="min-h-screen bg-gray-50 pt-20 pb-16 flex items-center"> {/* Centering content vertically */}
         <div className="container mx-auto px-4">
-          <div className="max-w-3xl mx-auto">
-            <div className="text-center mb-12">
-              <h1 className="text-4xl font-bold mb-4">About InterviewInsights</h1>
-              <p className="text-gray-600">
-                Helping candidates prepare with real interview experiences since 2023.
-              </p>
-            </div>
-            
-            <div className="prose max-w-none">
-              <p className="text-lg mb-6">
-                InterviewInsights was founded with a simple mission: to provide transparency and real-world insights into the interview processes at top companies around the world.
-              </p>
-              
-              <h2 className="text-2xl font-semibold mt-8 mb-4">Our Mission</h2>
+          <div className="max-w-2xl mx-auto text-center"> {/* Centered text, slightly narrower */}
+            {/* Main Header */}
+            <h1 className="text-4xl font-bold mb-4">About InterviewInsights</h1>
+            <p className="text-gray-600 mb-8"> {/* Increased bottom margin */}
+              Real interview experiences. Real preparation.
+            </p>
+
+            {/* Condensed Content */}
+            <div className="prose prose-lg max-w-none text-left md:text-center space-y-4"> {/* Larger text, centered on medium screens */}
               <p>
-                We believe that interview preparation shouldn't be shrouded in mystery. By collecting and sharing real interview experiences, we help candidates:
+                InterviewInsights aims to demystify the hiring process by providing a platform where individuals share genuine interview experiences from various companies.
               </p>
-              <ul className="list-disc pl-6 my-4 space-y-2">
-                <li>Understand what to expect in interviews at specific companies</li>
-                <li>Learn from both successful and unsuccessful interview experiences</li>
-                <li>Identify patterns in interview questions and formats</li>
-                <li>Better prepare for their own interviews</li>
-              </ul>
-              
-              <h2 className="text-2xl font-semibold mt-8 mb-4">Our Community</h2>
               <p>
-                InterviewInsights is powered by a community of professionals who generously share their experiences to help others. Our platform brings together:
+                Our goal is simple: leverage collective knowledge to help everyone prepare more effectively. By learning from the successes and challenges of others, you can gain valuable insights into company processes, question patterns, and expected difficulties.
               </p>
-              <ul className="list-disc pl-6 my-4 space-y-2">
-                <li>Job seekers preparing for interviews</li>
-                <li>Professionals who have gone through interview processes</li>
-                <li>Career advisors and mentors</li>
-                <li>Company representatives who want to improve their hiring processes</li>
-              </ul>
-              
-              <h2 className="text-2xl font-semibold mt-8 mb-4">Join Us</h2>
               <p>
-                Whether you're preparing for an upcoming interview or have experiences to share, we invite you to join our community. Together, we can make the interview process more transparent and accessible for everyone.
+                Whether you're gearing up for your next interview or have valuable experiences to contribute, join our community today. Let's make interview preparation more transparent and accessible together.
               </p>
             </div>
           </div>
         </div>
       </div>
+      
     </>
   );
 };
