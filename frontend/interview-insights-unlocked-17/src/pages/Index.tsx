@@ -2,7 +2,6 @@ import { useEffect, useState } from "react";
 // Import useNavigate, remove Link if no longer needed directly for this button
 import { useNavigate } from "react-router-dom";
 import Navbar from "@/components/Navbar";
-import Footer from "@/components/Footer";
 import HeroSection from "@/components/HeroSection";
 import StatsSection from "@/components/StatsSection";
 import CompanyFilter from "@/components/CompanyFilter";
@@ -73,7 +72,6 @@ const Index = () => {
               <main className="flex-grow flex items-center justify-center">
                   <p>Loading experiences...</p>
               </main>
-              <Footer />
           </div>
       );
   }
@@ -88,7 +86,7 @@ const Index = () => {
                       Try Again
                   </Button>
               </main>
-              <Footer />
+              
           </div>
       );
   }
@@ -162,8 +160,7 @@ const Index = () => {
           </div>
         </section>
       </main>
-
-      <Footer />
+ 
     </div>
   );
 };

@@ -2,7 +2,6 @@
 import { useState, useEffect } from "react"; // Removed useMemo
 import { useNavigate, useLocation } from "react-router-dom";
 import Navbar from "@/components/Navbar";
-import Footer from "@/components/Footer";
 import InterviewCard from "@/components/InterviewCard";
 import CompanyFilter from "@/components/CompanyFilter";
 import { Button } from "@/components/ui/button";
@@ -281,7 +280,7 @@ const Search = () => {
           </div>
         </div>
       </main>
-      <Footer />
+      
     </div>
   );
 };

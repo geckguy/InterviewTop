@@ -13,65 +13,101 @@ export interface VisitedPostSummary {
 }
 
 // Interface representing the *actual raw data* coming from the API
-interface RawVisitedPostFromAPI {
-    _id: string; // The field name as it comes from the API
-    company?: string | null;
-    position?: string | null;
-    // Add other fields if the backend endpoint actually sends them
+interface RawPostSummaryFromAPI {
+  _id: string;
+  company?: string | null;
+  position?: string | null;
+  // Add createdAt if needed for sorting/display
+  createdAt?: string;
 }
 
 
+// --- Map raw summary to Card Props ---
+const mapRawSummaryToCardProps = (summary: RawPostSummaryFromAPI | null): InterviewCardProps | null => {
+  if (!summary || typeof summary._id !== 'string' || !summary._id) {
+      console.warn("Post summary missing or invalid _id:", summary);
+      return null;
+  }
+
+  let dateObject: Date;
+  try {
+      dateObject = summary.createdAt ? new Date(summary.createdAt) : new Date();
+      if (isNaN(dateObject.getTime())) dateObject = new Date(); // Fallback on invalid date
+  } catch {
+      dateObject = new Date(); // Fallback on error
+  }
+
+
+  return {
+      id: summary._id, // Map _id to id
+      company: summary.company ?? 'Unknown Company',
+      role: summary.position ?? 'Unknown Position',
+      difficulty: 'Medium', // Placeholder
+      result: 'Pending',    // Placeholder
+      date: dateObject,     // Use parsed/fallback date
+      likes: 0,             // Placeholder
+      comments: 0,          // Placeholder
+      excerpt: `Experience for ${summary.position ?? 'position'} at ${summary.company ?? 'company'}.`,
+  };
+};
+
+export const fetchSavedPosts = async (): Promise<InterviewCardProps[]> => {
+  try {
+      const response = await api.get<RawPostSummaryFromAPI[]>(`/interviews/users/me/saved-posts`);
+      if (!Array.isArray(response.data)) {
+          console.error("Expected an array from /saved-posts, received:", response.data);
+          return [];
+      }
+      return response.data
+          .map(mapRawSummaryToCardProps)
+          .filter((card): card is InterviewCardProps => card !== null);
+  } catch (error) {
+      console.error("Error fetching saved posts:", error);
+      return [];
+  }
+};
+
+// --- NEW: Save/Unsave API calls ---
+export const savePost = async (id: string): Promise<void> => {
+  await api.post(`/interviews/${id}/save`);
+};
+
+export const unsavePost = async (id: string): Promise<void> => {
+  await api.delete(`/interviews/${id}/save`);
+};
+
+// --- NEW: Fetch Save Status ---
+export interface SaveStatusResponse {
+  is_saved: boolean;
+}
+export const fetchSaveStatus = async (id: string): Promise<boolean> => {
+  if (!id || id === 'undefined') return false; // Prevent invalid calls
+  try {
+      const response = await api.get<SaveStatusResponse>(`/interviews/${id}/savestatus`);
+      return response.data.is_saved;
+  } catch (error) {
+      console.error(`Error fetching save status for post ${id}:`, error);
+      return false; // Assume not saved on error
+  }
+};
+
 // Type for the full raw interview document from MongoDB (used internally elsewhere)
 type RawInterview = InterviewExperience & { _id: string };
-
-// --- Updated fetchVisitedPosts ---
 export const fetchVisitedPosts = async (): Promise<InterviewCardProps[]> => {
   try {
-    // Expect the raw data structure (with _id) from the backend endpoint
-    const response = await api.get<RawVisitedPostFromAPI[]>(`/interviews/users/me/visited-posts`);
-
+    const response = await api.get<RawPostSummaryFromAPI[]>(`/interviews/users/me/visited-posts`);
     if (!Array.isArray(response.data)) {
-        console.error("Expected an array from /users/me/visited-posts, received:", response.data);
-        return []; // Return empty array on unexpected data structure
+      console.error("Expected an array from /visited-posts, received:", response.data);
+      return [];
     }
-
-    // Map the raw data to the format needed by InterviewCard
-    // Perform the _id -> id mapping manually here
     return response.data
-      .map(summary => {
-        // Basic validation to ensure summary and its _id exist
-        if (!summary || typeof summary._id !== 'string' || !summary._id) {
-          console.warn("Visited post summary missing or invalid _id:", summary);
-          // Return null to filter out problematic entries later
-          return null;
-        }
-
-        // Construct InterviewCardProps using summary data and placeholders
-        return {
-          id: summary._id, // <--- Perform the mapping from _id to id HERE
-          company: summary.company ?? 'Unknown Company',
-          role: summary.position ?? 'Unknown Position',
-          // Add default/placeholder values for fields not present
-          difficulty: 'Medium', // Placeholder
-          result: 'Pending',    // Placeholder
-          date: new Date(),     // Placeholder - visited date isn't tracked simply
-          likes: 0,             // Placeholder
-          comments: 0,          // Placeholder
-          // Create a more informative placeholder excerpt
-          excerpt: `Interview experience for ${summary.position ?? 'position'} at ${summary.company ?? 'company'}.`,
-        };
-      })
-      // Filter out any entries that failed validation (returned null)
+      .map(mapRawSummaryToCardProps)
       .filter((card): card is InterviewCardProps => card !== null);
-
   } catch (error) {
     console.error("Error fetching visited posts:", error);
-    // Depending on error handling strategy, you might throw, return [], or return specific error cards
     return [];
   }
 };
-// --- End Updated fetchVisitedPosts ---
-
 
 export interface CompanyInfo {
   name: string;
