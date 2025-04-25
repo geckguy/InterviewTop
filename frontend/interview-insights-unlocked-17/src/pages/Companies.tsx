@@ -91,7 +91,6 @@ const Companies = () => {
           )}
         </div> {/* Close inner container */}
       </div> {/* Close outer wrapper */}
-      <Footer />
     </>
   );
 };

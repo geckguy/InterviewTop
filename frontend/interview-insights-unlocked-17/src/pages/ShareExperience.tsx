@@ -1,3 +1,4 @@
+// --- START OF FILE ShareExperience.tsx ---
 
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
@@ -9,33 +10,58 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
-import { useToast } from "@/components/ui/use-toast"; 
-import { Check, Info, Briefcase, Building, FileText, Star, AlertTriangle, Users } from "lucide-react";
+import { useToast } from "@/components/ui/use-toast";
+import { Check, Info, Briefcase, Building, FileText, Star, AlertTriangle, Users, Loader2, Link as LinkIcon } from "lucide-react"; // Added Loader2, LinkIcon
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Separator } from "@/components/ui/separator";
+// Removed Tabs imports as they are not used in the simplified structure
+// import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+// Removed Separator as it might not be needed in the simplified review
+// import { Separator } from "@/components/ui/separator";
 import { Progress } from "@/components/ui/progress";
-import { shareExperience as shareExperienceApi } from "@/api/interviews"; 
-import { InterviewExperience } from "@/types/backend";
+import { shareExperience as shareExperienceApi } from "@/api/interviews";
+import { InterviewExperience, InterviewRound, LeetcodeQuestion, DesignQuestion } from "@/types/backend"; // Import detailed types if needed later
+
+
+// Simplified structure for this iteration
+interface SimplifiedFormData {
+    company: string;
+    position: string;
+    seniority: string; // Added
+    location: string; // Added
+    result: string; // Maps to offer_status
+    difficulty: string;
+    interviewProcessRounds: string; // Text area for rounds
+    leetcodeQuestions: string; // Text area for coding questions
+    designQuestions: string; // Text area for design questions
+    behavioralQuestions: string; // Text area for behavioral/other
+    tips: string;
+    problemLinks: string; // Comma-separated links
+    // anonymous: boolean; // Removed anonymous for now, backend doesn't handle it yet
+}
+
 const ShareExperience = () => {
   const navigate = useNavigate();
   const [formSubmitted, setFormSubmitted] = useState(false);
   const [formStep, setFormStep] = useState(1);
-  const [formProgress, setFormProgress] = useState(25);
-  const { toast } = useToast(); // Initialize toast
-  const [isLoading, setIsLoading] = useState(false); // Add loading 
-  
-  // Form state
-  const [formData, setFormData] = useState({
+  const [formProgress, setFormProgress] = useState(25); // 4 steps
+  const { toast } = useToast();
+  const [isLoading, setIsLoading] = useState(false);
+
+  // Form state using the simplified structure
+  const [formData, setFormData] = useState<SimplifiedFormData>({
     company: "",
     position: "",
+    seniority: "", // Added
+    location: "", // Added
     result: "pending",
     difficulty: "medium",
-    interviewProcess: "",
-    experience: "",
+    interviewProcessRounds: "",
+    leetcodeQuestions: "",
+    designQuestions: "",
+    behavioralQuestions: "",
     tips: "",
-    questions: "",
-    anonymous: false
+    problemLinks: "",
+    // anonymous: false
   });
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -43,82 +69,109 @@ const ShareExperience = () => {
     setFormData(prev => ({ ...prev, [id]: value }));
   };
 
-  const handleSelectChange = (name: string, value: string) => {
+  const handleSelectChange = (name: keyof SimplifiedFormData, value: string) => {
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
-  const handleRadioChange = (name: string, value: string) => {
+  const handleRadioChange = (name: keyof SimplifiedFormData, value: string) => {
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
   const nextStep = () => {
+    // --- Step 1 Validation ---
     if (formStep === 1) {
       if (!formData.company || !formData.position) {
-        toast({
-          title: "Missing information",
-          description: "Please fill in company name and position before proceeding.",
-          variant: "destructive"
-        });
+        toast({ title: "Missing information", description: "Please fill in Company Name and Position.", variant: "destructive" });
         return;
       }
     }
-    
+    // --- Step 2 Validation ---
+    if (formStep === 2) {
+       if (!formData.interviewProcessRounds) {
+          toast({ title: "Missing information", description: "Please provide an overview of the interview rounds.", variant: "destructive" });
+          return;
+       }
+    }
+    // --- Step 3 Validation (Optional, less critical) ---
+    // if (formStep === 3) { ... }
+
     const newStep = formStep + 1;
     setFormStep(newStep);
-    setFormProgress(newStep * 25);
+    setFormProgress(Math.min(100, newStep * 25)); // Update progress (4 steps total)
   };
 
   const prevStep = () => {
     const newStep = formStep - 1;
     setFormStep(newStep);
-    setFormProgress(newStep * 25);
+    setFormProgress(Math.max(25, newStep * 25)); // Update progress
   };
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
-     // Add validation for the final step if needed
     if (formStep !== 4) {
-          toast({ title: "Incomplete Form", description: "Please review all steps.", variant: "destructive" });
-          return;
+      toast({ title: "Incomplete Form", description: "Please review all steps before submitting.", variant: "destructive" });
+      return;
     }
-  
-      setIsLoading(true);
-      try {
-        // Prepare data for the backend
-        // NOTE: This is a simplified mapping. A real app might need more complex structuring
-        //       especially for nested fields like interview_details, leetcode_questions etc.
-        //       The current backend model seems flexible with Optional fields.
-        const experienceData: Partial<InterviewExperience> = {
-          company: formData.company,
-          position: formData.position,
-          offer_status: formData.result, // Map frontend 'result' to backend 'offer_status'
-        difficulty: formData.difficulty,
-          // Map other fields like interviewProcess, experience, tips, questions
-          // potentially into quality_reasoning or dedicated fields if backend supports it.
-          // For now, let's add experience to quality_reasoning as an example:
-          quality_reasoning: `Process: ${formData.interviewProcess}\nExperience: ${formData.experience}\nQuestions: ${formData.questions}\nTips: ${formData.tips}`,
-          // anonymous flag needs handling if backend supports it
-        };
-  
-        await shareExperienceApi(experienceData);
-  
-        toast({
+
+    setIsLoading(true);
+    try {
+      // Map simplified frontend state to the backend InterviewExperience model
+      const experienceData: Partial<InterviewExperience> = {
+        company: formData.company || null,
+        position: formData.position || null,
+        seniority: formData.seniority || null,
+        location: formData.location || null,
+        offer_status: formData.result || null,
+        difficulty: formData.difficulty || null,
+
+        // Combine textual descriptions. Backend might parse later or just display.
+        // Example: Store round descriptions in interview_details (needs backend adjustment or store as text)
+        // For simplicity now, let's combine into quality_reasoning (or a new field)
+        // Let's attempt to structure interview_details slightly from the text
+        interview_details: formData.interviewProcessRounds
+          ? [{ round_number: 1, type: "General Process", questions: [formData.interviewProcessRounds] }] // Simplified structure
+          : undefined,
+
+        // Combine questions into quality_reasoning or specific fields if backend supports
+        // Option 1: Combine into quality_reasoning
+        quality_reasoning: `Coding Questions:\n${formData.leetcodeQuestions || 'N/A'}\n\nDesign Questions:\n${formData.designQuestions || 'N/A'}\n\nBehavioral/Other:\n${formData.behavioralQuestions || 'N/A'}\n\nTips:\n${formData.tips || 'N/A'}`,
+
+        // Option 2: Map to specific fields (if backend model adjusted)
+        // leetcode_questions: formData.leetcodeQuestions ? [{ problem_statement: formData.leetcodeQuestions }] : undefined,
+        // design_questions: formData.designQuestions ? [{ description: formData.designQuestions }] : undefined,
+        // Add behavioral questions if model supports
+
+        // Handle problem links (split comma-separated string)
+        problem_link: formData.problemLinks
+          ? formData.problemLinks.split(',').map(link => link.trim()).filter(link => link)
+          : undefined,
+      };
+
+      console.log("Submitting data:", experienceData); // Log before sending
+
+      await shareExperienceApi(experienceData);
+
+      toast({
         title: "Experience shared successfully!",
-          description: "Thank you for contributing to the community.",
-        });
-        setFormSubmitted(true); // Show success screen
-      } catch (error: any) {
-        const errorMessage = error?.response?.data?.detail || "Failed to share experience. Please try again.";
-        toast({
-          title: "Error",
-          description: errorMessage,
-          variant: "destructive",
-        });
-      } finally {
-        setIsLoading(false);
-      }
+        description: "Thank you for contributing to the community.",
+      });
+      setFormSubmitted(true); // Show success screen
+
+    } catch (error: any) {
+      console.error("Submission error:", error); // Log detailed error
+      const errorMessage = error?.response?.data?.detail || "Failed to share experience. Please try again.";
+      toast({
+        title: "Submission Error",
+        description: errorMessage,
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
+
+  // --- Success Screen (No Changes Needed) ---
   if (formSubmitted) {
     return (
       <>
@@ -132,112 +185,113 @@ const ShareExperience = () => {
                 </div>
                 <h2 className="text-2xl font-bold mb-3">Thank You!</h2>
                 <p className="text-gray-600 mb-6">
-                  Your interview experience has been shared with the community. Your insights will help others prepare for their interviews.
+                  Your interview experience has been submitted. Your insights will help others prepare.
                 </p>
                 <div className="flex flex-col sm:flex-row gap-3 justify-center mt-4">
-                  <Button variant="outline" onClick={() => setFormSubmitted(false)}>
+                  <Button variant="outline" onClick={() => {
+                      // Reset form state completely when sharing another
+                      setFormData({
+                          company: "", position: "", seniority: "", location: "",
+                          result: "pending", difficulty: "medium",
+                          interviewProcessRounds: "", leetcodeQuestions: "",
+                          designQuestions: "", behavioralQuestions: "", tips: "",
+                          problemLinks: ""
+                      });
+                      setFormStep(1);
+                      setFormProgress(25);
+                      setFormSubmitted(false);
+                  }}>
                     Share Another Experience
                   </Button>
-                  <Button onClick={() => navigate("/explore")}>
-                    Explore Other Experiences
+                  {/* Update navigate path if /explore is removed */}
+                  <Button onClick={() => navigate("/search")}>
+                    Explore Experiences
                   </Button>
                 </div>
               </CardContent>
             </Card>
           </div>
         </div>
-        <Footer />
+        
       </>
     );
   }
 
+  // --- Form UI ---
   return (
     <>
       <Navbar />
       <div className="min-h-screen bg-gray-50 pt-20 pb-16">
         <div className="container mx-auto px-4">
           <div className="max-w-2xl mx-auto">
+            {/* Header */}
             <div className="text-center mb-8">
               <h1 className="text-3xl font-bold mb-2">Share Your Interview Experience</h1>
               <p className="text-gray-600">
-                Help others by sharing your interview journey. Your insights are valuable to the community.
+                Help others by sharing your interview journey. Your insights are valuable.
               </p>
             </div>
-            
+
+            {/* Progress Bar */}
             <div className="mb-6">
               <Progress value={formProgress} className="h-2" />
-              <div className="flex justify-between mt-2 text-sm text-gray-500">
-                <span>Basic Info</span>
-                <span>Interview Details</span>
-                <span>Questions & Tips</span>
-                <span>Review</span>
+              <div className="flex justify-between mt-2 text-xs text-gray-500 px-1">
+                <span className={formStep >= 1 ? 'font-medium text-brand-purple' : ''}>Basic Info</span>
+                <span className={formStep >= 2 ? 'font-medium text-brand-purple' : ''}>Process</span>
+                <span className={formStep >= 3 ? 'font-medium text-brand-purple' : ''}>Questions & Tips</span>
+                <span className={formStep >= 4 ? 'font-medium text-brand-purple' : ''}>Review</span>
               </div>
             </div>
-            
+
             <Card>
               <CardContent className="pt-6">
                 <form onSubmit={handleSubmit} className="space-y-6">
+                  {/* --- STEP 1: Basic Info --- */}
                   {formStep === 1 && (
-                    <div className="space-y-6">
+                    <div className="space-y-6 animate-fade-in">
                       <div className="flex items-center gap-2 mb-4">
                         <Building className="h-5 w-5 text-brand-purple" />
-                        <h2 className="text-xl font-semibold">Company & Position Details</h2>
+                        <h2 className="text-xl font-semibold">Company & Role Details</h2>
                       </div>
-                      
-                      <div className="space-y-2">
-                        <Label htmlFor="company">Company Name*</Label>
-                        <Input 
-                          id="company" 
-                          placeholder="e.g. Google, Amazon, etc." 
-                          value={formData.company}
-                          onChange={handleChange}
-                          required 
-                        />
+
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="space-y-2">
+                          <Label htmlFor="company">Company Name*</Label>
+                          <Input id="company" placeholder="e.g., Google" value={formData.company} onChange={handleChange} required />
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="position">Position Applied For*</Label>
+                          <Input id="position" placeholder="e.g., Software Engineer" value={formData.position} onChange={handleChange} required />
+                        </div>
                       </div>
-                      
-                      <div className="space-y-2">
-                        <Label htmlFor="position">Position Applied For*</Label>
-                        <Input 
-                          id="position" 
-                          placeholder="e.g. Software Engineer, Product Manager" 
-                          value={formData.position}
-                          onChange={handleChange}
-                          required 
-                        />
+
+                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="space-y-2">
+                          <Label htmlFor="seniority">Seniority Level</Label>
+                          <Input id="seniority" placeholder="e.g., Senior, L4, Intern" value={formData.seniority} onChange={handleChange}/>
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="location">Location</Label>
+                          <Input id="location" placeholder="e.g., Remote, London, UK" value={formData.location} onChange={handleChange} />
+                        </div>
                       </div>
-                      
+
                       <div className="space-y-2">
-                        <Label>Interview Result</Label>
-                        <RadioGroup 
-                          value={formData.result} 
-                          onValueChange={(value) => handleRadioChange("result", value)}
-                        >
-                          <div className="flex flex-wrap gap-4">
-                            <div className="flex items-center space-x-2 bg-green-50 px-4 py-3 rounded-md border border-green-100">
-                              <RadioGroupItem value="offer" id="offer" />
-                              <Label htmlFor="offer" className="cursor-pointer">Offer</Label>
-                            </div>
-                            <div className="flex items-center space-x-2 bg-red-50 px-4 py-3 rounded-md border border-red-100">
-                              <RadioGroupItem value="rejected" id="rejected" />
-                              <Label htmlFor="rejected" className="cursor-pointer">Rejected</Label>
-                            </div>
-                            <div className="flex items-center space-x-2 bg-blue-50 px-4 py-3 rounded-md border border-blue-100">
-                              <RadioGroupItem value="pending" id="pending" />
-                              <Label htmlFor="pending" className="cursor-pointer">Pending</Label>
-                            </div>
-                          </div>
+                        <Label>Interview Result*</Label>
+                        <RadioGroup value={formData.result} onValueChange={(value) => handleRadioChange("result", value)} className="flex flex-wrap gap-3">
+                          {(['offer', 'rejected', 'pending'] as const).map((res) => (
+                             <div key={res} className="flex items-center space-x-2 bg-gray-50 px-3 py-2 rounded-md border border-gray-200 has-[:checked]:border-brand-purple has-[:checked]:bg-brand-purple-light">
+                               <RadioGroupItem value={res} id={res} />
+                               <Label htmlFor={res} className="cursor-pointer capitalize">{res}</Label>
+                             </div>
+                          ))}
                         </RadioGroup>
                       </div>
-                      
+
                       <div className="space-y-2">
-                        <Label htmlFor="difficulty">Interview Difficulty</Label>
-                        <Select 
-                          value={formData.difficulty}
-                          onValueChange={(value) => handleSelectChange("difficulty", value)}
-                        >
-                          <SelectTrigger>
-                            <SelectValue placeholder="Select difficulty" />
-                          </SelectTrigger>
+                        <Label htmlFor="difficulty">Overall Interview Difficulty*</Label>
+                        <Select value={formData.difficulty} onValueChange={(value) => handleSelectChange("difficulty", value)}>
+                          <SelectTrigger><SelectValue placeholder="Select difficulty" /></SelectTrigger>
                           <SelectContent>
                             <SelectItem value="easy">Easy</SelectItem>
                             <SelectItem value="medium">Medium</SelectItem>
@@ -248,174 +302,184 @@ const ShareExperience = () => {
                       </div>
                     </div>
                   )}
-                  
+
+                  {/* --- STEP 2: Interview Process --- */}
                   {formStep === 2 && (
-                    <div className="space-y-6">
+                    <div className="space-y-6 animate-fade-in">
                       <div className="flex items-center gap-2 mb-4">
                         <FileText className="h-5 w-5 text-brand-purple" />
-                        <h2 className="text-xl font-semibold">Interview Process & Experience</h2>
+                        <h2 className="text-xl font-semibold">Interview Process</h2>
                       </div>
-                      
+
                       <div className="space-y-2">
-                        <Label htmlFor="interviewProcess">Interview Process Overview*</Label>
-                        <Textarea 
-                          id="interviewProcess" 
-                          placeholder="Describe the interview process (number of rounds, types of interviews, timeline, etc.)" 
-                          value={formData.interviewProcess}
+                        <Label htmlFor="interviewProcessRounds">Describe the Interview Rounds*</Label>
+                        <Textarea
+                          id="interviewProcessRounds"
+                          placeholder="Explain the stages. e.g.,
+Round 1: Recruiter call (30 mins)
+Round 2: Technical phone screen (1 hr, coding)
+Round 3-5: Onsite loop (coding, system design, behavioral)..."
+                          value={formData.interviewProcessRounds}
                           onChange={handleChange}
-                          rows={4} 
-                          required 
+                          rows={8}
+                          required
                         />
+                         <p className="text-xs text-gray-500">Include number of rounds, types (coding, design, behavioral), and duration if possible.</p>
                       </div>
-                      
-                      <div className="space-y-2">
-                        <Label htmlFor="experience">Your Interview Experience*</Label>
-                        <Textarea 
-                          id="experience" 
-                          placeholder="Share details about your experience, how you felt, what surprised you, etc." 
-                          value={formData.experience}
-                          onChange={handleChange}
-                          rows={6} 
-                          required 
-                        />
-                      </div>
-                      
+
                       <div className="bg-amber-50 p-4 rounded-md border border-amber-100 flex gap-3">
                         <Info className="h-5 w-5 text-amber-500 flex-shrink-0 mt-0.5" />
-                        <div className="text-sm text-amber-800">
-                          <p className="font-medium">Be honest and constructive</p>
-                          <p className="mt-1">Your insights help others prepare, but remember to keep your feedback professional and constructive.</p>
-                        </div>
+                        <p className="text-sm text-amber-800">Focus on the structure and flow of the interview process here.</p>
                       </div>
                     </div>
                   )}
-                  
+
+                  {/* --- STEP 3: Questions & Tips --- */}
                   {formStep === 3 && (
-                    <div className="space-y-6">
-                      <div className="flex items-center gap-2 mb-4">
+                    <div className="space-y-6 animate-fade-in">
+                       <div className="flex items-center gap-2 mb-4">
                         <Star className="h-5 w-5 text-brand-purple" />
                         <h2 className="text-xl font-semibold">Questions & Tips</h2>
                       </div>
-                      
+
                       <div className="space-y-2">
-                        <Label htmlFor="questions">Interview Questions Asked</Label>
-                        <Textarea 
-                          id="questions" 
-                          placeholder="List specific questions you were asked during the interview (technical, behavioral, etc.)" 
-                          value={formData.questions}
+                        <Label htmlFor="leetcodeQuestions">Coding Questions</Label>
+                        <Textarea
+                          id="leetcodeQuestions"
+                          placeholder="List specific coding problems or topics. e.g.,
+- Two Sum (variation)
+- Graph traversal (BFS on a grid)
+- Asked about time/space complexity..."
+                          value={formData.leetcodeQuestions}
                           onChange={handleChange}
-                          rows={6} 
+                          rows={5}
+                        />
+                        <p className="text-xs text-gray-500">Provide problem names (if known), topics, or descriptions.</p>
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label htmlFor="designQuestions">System Design Questions</Label>
+                        <Textarea
+                          id="designQuestions"
+                          placeholder="Describe system design tasks. e.g.,
+- Design a URL shortener
+- Scalability considerations for a social media feed..."
+                          value={formData.designQuestions}
+                          onChange={handleChange}
+                          rows={5}
                         />
                       </div>
-                      
+
+                      <div className="space-y-2">
+                        <Label htmlFor="behavioralQuestions">Behavioral / Other Questions</Label>
+                        <Textarea
+                          id="behavioralQuestions"
+                          placeholder="Mention key behavioral questions or discussions. e.g.,
+- Tell me about a time you failed.
+- Why this company?
+- Questions about past projects..."
+                          value={formData.behavioralQuestions}
+                          onChange={handleChange}
+                          rows={5}
+                        />
+                      </div>
+
+                       <div className="space-y-2">
+                          <Label htmlFor="problemLinks">Relevant Links (Optional)</Label>
+                          <Input
+                              id="problemLinks"
+                              placeholder="e.g., LeetCode links, article URLs (comma-separated)"
+                              value={formData.problemLinks}
+                              onChange={handleChange}
+                          />
+                          <p className="text-xs text-gray-500">Separate multiple URLs with commas (,).</p>
+                      </div>
+
                       <div className="space-y-2">
                         <Label htmlFor="tips">Tips for Future Candidates</Label>
-                        <Textarea 
-                          id="tips" 
-                          placeholder="What would you recommend to others interviewing for similar roles?" 
+                        <Textarea
+                          id="tips"
+                          placeholder="What advice would you give? e.g.,
+- Practice company-specific questions.
+- Be prepared to explain your thought process clearly.
+- Study system design principles..."
                           value={formData.tips}
                           onChange={handleChange}
-                          rows={4} 
+                          rows={4}
                         />
                       </div>
-                      
-                      <div className="bg-blue-50 p-4 rounded-md border border-blue-100 flex gap-3">
+
+                       <div className="bg-blue-50 p-4 rounded-md border border-blue-100 flex gap-3">
                         <AlertTriangle className="h-5 w-5 text-blue-500 flex-shrink-0 mt-0.5" />
-                        <div className="text-sm text-blue-800">
-                          <p className="font-medium">Respecting confidentiality</p>
-                          <p className="mt-1">Be mindful of sharing interview questions that might be under NDA. When in doubt, provide general topics instead of exact questions.</p>
-                        </div>
-                      </div>
+                        <p className="text-sm text-blue-800">Please be mindful of NDAs. Share general topics or question types if specific wording is confidential.</p>
+                       </div>
                     </div>
                   )}
-                  
+
+                   {/* --- STEP 4: Review --- */}
                   {formStep === 4 && (
-                    <div className="space-y-6">
+                    <div className="space-y-6 animate-fade-in">
                       <div className="flex items-center gap-2 mb-4">
                         <Check className="h-5 w-5 text-brand-purple" />
                         <h2 className="text-xl font-semibold">Review & Submit</h2>
                       </div>
-                      
-                      <div className="space-y-4">
-                        <Card className="border-gray-200">
-                          <CardHeader className="pb-2">
-                            <CardTitle className="text-lg">Company & Position</CardTitle>
-                          </CardHeader>
-                          <CardContent>
-                            <div className="grid grid-cols-2 gap-4">
-                              <div>
-                                <p className="text-sm text-gray-500">Company</p>
-                                <p className="font-medium">{formData.company}</p>
-                              </div>
-                              <div>
-                                <p className="text-sm text-gray-500">Position</p>
-                                <p className="font-medium">{formData.position}</p>
-                              </div>
-                              <div>
-                                <p className="text-sm text-gray-500">Result</p>
-                                <p className="font-medium capitalize">{formData.result}</p>
-                              </div>
-                              <div>
-                                <p className="text-sm text-gray-500">Difficulty</p>
-                                <p className="font-medium capitalize">{formData.difficulty}</p>
-                              </div>
-                            </div>
-                          </CardContent>
-                        </Card>
-                        
-                        <Card className="border-gray-200">
-                          <CardHeader className="pb-2">
-                            <CardTitle className="text-lg">Experience Details</CardTitle>
-                          </CardHeader>
-                          <CardContent className="space-y-4">
-                            <div>
-                              <p className="text-sm text-gray-500">Interview Process</p>
-                              <p className="text-sm mt-1">{formData.interviewProcess || "Not provided"}</p>
-                            </div>
-                            <div>
-                              <p className="text-sm text-gray-500">Experience</p>
-                              <p className="text-sm mt-1">{formData.experience || "Not provided"}</p>
-                            </div>
-                            <div>
-                              <p className="text-sm text-gray-500">Questions</p>
-                              <p className="text-sm mt-1">{formData.questions || "Not provided"}</p>
-                            </div>
-                            <div>
-                              <p className="text-sm text-gray-500">Tips</p>
-                              <p className="text-sm mt-1">{formData.tips || "Not provided"}</p>
-                            </div>
-                          </CardContent>
-                        </Card>
-                      </div>
-                      
-                      <div className="flex items-center space-x-2 p-4 bg-green-50 rounded-md border border-green-100">
-                        <Check className="w-5 h-5 text-green-600" />
-                        <p className="text-sm text-green-800">Your submission looks good! Ready to help the community?</p>
+
+                      {/* Review Section - Display collected data */}
+                      <Card className="border-gray-200">
+                        <CardHeader className="pb-3 pt-4"><CardTitle className="text-lg">Basic Info</CardTitle></CardHeader>
+                        <CardContent className="grid grid-cols-2 gap-x-4 gap-y-2 text-sm">
+                          <div><span className="text-gray-500">Company:</span> {formData.company}</div>
+                          <div><span className="text-gray-500">Position:</span> {formData.position}</div>
+                          <div><span className="text-gray-500">Seniority:</span> {formData.seniority || 'N/A'}</div>
+                          <div><span className="text-gray-500">Location:</span> {formData.location || 'N/A'}</div>
+                          <div><span className="text-gray-500">Result:</span> <span className="capitalize">{formData.result}</span></div>
+                          <div><span className="text-gray-500">Difficulty:</span> <span className="capitalize">{formData.difficulty}</span></div>
+                        </CardContent>
+                      </Card>
+
+                       <Card className="border-gray-200">
+                        <CardHeader className="pb-3 pt-4"><CardTitle className="text-lg">Interview Details</CardTitle></CardHeader>
+                        <CardContent className="space-y-3 text-sm">
+                            <ReviewSection title="Interview Rounds" content={formData.interviewProcessRounds} />
+                            <ReviewSection title="Coding Questions" content={formData.leetcodeQuestions} />
+                            <ReviewSection title="System Design" content={formData.designQuestions} />
+                            <ReviewSection title="Behavioral/Other" content={formData.behavioralQuestions} />
+                            <ReviewSection title="Tips" content={formData.tips} />
+                            <ReviewSection title="Links" content={formData.problemLinks} />
+                        </CardContent>
+                      </Card>
+
+                       <div className="flex items-center space-x-2 p-4 bg-green-50 rounded-md border border-green-100">
+                        <Check className="w-5 h-5 text-green-600 flex-shrink-0" />
+                        <p className="text-sm text-green-800">Please review your submission. Click "Submit Experience" when ready.</p>
                       </div>
                     </div>
                   )}
-                  
-                  <div className="flex justify-between pt-4">
-                    {formStep > 1 && (
-                      <Button type="button" variant="outline" onClick={prevStep}>
-                        Back
-                      </Button>
-                    )}
-                    
+
+                  {/* Navigation Buttons */}
+                  <div className="flex justify-between pt-4 border-t border-gray-100 mt-6">
+                    <Button type="button" variant="outline" onClick={prevStep} disabled={formStep === 1 || isLoading}>
+                      Back
+                    </Button>
                     {formStep < 4 ? (
-                      <Button type="button" className="ml-auto bg-brand-purple hover:bg-brand-purple-dark" onClick={nextStep}>
+                      <Button type="button" className="bg-brand-purple hover:bg-brand-purple-dark" onClick={nextStep} disabled={isLoading}>
                         Continue
                       </Button>
                     ) : (
-                      <Button type="submit" className="ml-auto bg-brand-purple hover:bg-brand-purple-dark" disabled={isLoading}>
-                        Submit Experience
+                      <Button type="submit" className="bg-brand-purple hover:bg-brand-purple-dark min-w-[150px]" disabled={isLoading}>
+                        {isLoading ? (
+                            <span className="flex items-center justify-center gap-2"><Loader2 className="h-4 w-4 animate-spin" /> Submitting...</span>
+                        ) : (
+                            "Submit Experience"
+                        )}
                       </Button>
                     )}
                   </div>
                 </form>
               </CardContent>
             </Card>
-            
+
+            {/* Why Share Section (No Changes Needed) */}
             <div className="mt-8 bg-white p-6 rounded-lg shadow-sm border border-gray-100">
               <h3 className="text-lg font-semibold mb-4">Why Share Your Experience?</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -425,7 +489,7 @@ const ShareExperience = () => {
                   </div>
                   <div>
                     <h4 className="font-medium">Help Others</h4>
-                    <p className="text-sm text-gray-600 mt-1">Your experience can guide others through their interview preparation.</p>
+                    <p className="text-sm text-gray-600 mt-1">Guide others through their interview preparation.</p>
                   </div>
                 </div>
                 <div className="flex gap-3">
@@ -434,7 +498,7 @@ const ShareExperience = () => {
                   </div>
                   <div>
                     <h4 className="font-medium">Improve Transparency</h4>
-                    <p className="text-sm text-gray-600 mt-1">Increase transparency in the hiring process for everyone.</p>
+                    <p className="text-sm text-gray-600 mt-1">Make the hiring process clearer for everyone.</p>
                   </div>
                 </div>
               </div>
@@ -442,8 +506,19 @@ const ShareExperience = () => {
           </div>
         </div>
       </div>
-      <Footer />
+      
     </>
+  );
+};
+
+// Helper component for the review step
+const ReviewSection = ({ title, content }: { title: string; content?: string }) => {
+  if (!content) return null;
+  return (
+    <div>
+      <p className="text-xs text-gray-500 font-medium mb-0.5">{title}</p>
+      <p className="text-sm whitespace-pre-wrap bg-gray-50 p-2 rounded border border-gray-100">{content}</p>
+    </div>
   );
 };
 
