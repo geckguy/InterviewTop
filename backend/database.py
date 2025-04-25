@@ -5,8 +5,7 @@ from dotenv import load_dotenv
 
 # Load environment variables
 load_dotenv()
-
-MONGO_DETAILS = "mongodb+srv://invicube:***REMOVED***@cluster0.qwsfv.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0"
+MONGO_DETAILS = os.getenv("MONGO_URL")
 if not MONGO_DETAILS:
     raise ValueError("No MONGO_URL environment variable set")
     
@@ -20,4 +19,4 @@ posts_collection = database.get_collection("posts")
 # Users collection for authentication
 users_collection = database.get_collection("users")
 
-
+shared_experiences_collection = database.get_collection("shared_experiences")
