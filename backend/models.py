@@ -90,6 +90,7 @@ class UserInDB(UserBase):
     id: Optional[str] = Field(None, alias="_id")
     hashed_password: Optional[str] = None
     visited_posts: Optional[Set[ObjectId]] = Field(default_factory=set)
+    saved_posts: Optional[Set[ObjectId]] = Field(default_factory=set)
     created_at: Optional[datetime] = Field(default_factory=datetime.utcnow)
     updated_at: Optional[datetime] = Field(default_factory=datetime.utcnow)
     
