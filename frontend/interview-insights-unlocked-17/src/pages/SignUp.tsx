@@ -110,35 +110,35 @@ const SignUp = () => {
   // --- End Google Sign In Handlers ---
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gray-50 px-4 py-12 sm:px-6 lg:px-8">
+    <div className="flex min-h-screen items-center justify-center bg-gray-50 dark:bg-gray-900 px-4 py-12 sm:px-6 lg:px-8">
       <div className="w-full max-w-md space-y-8">
         {/* Header */}
         <div className="text-center">
-          <Link to="/" className="text-3xl font-bold text-brand-purple">
-            InterviewInsights
+          <Link to="/" className="text-3xl font-bold text-brand-purple dark:text-[#7E69AB]">
+            InterviewLog
           </Link>
-          <h2 className="mt-6 text-2xl font-bold tracking-tight text-gray-900">
+          <h2 className="mt-6 text-2xl font-bold tracking-tight text-gray-900 dark:text-gray-50">
             Create a new account
           </h2>
-          <p className="mt-2 text-sm text-gray-600">
+          <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
             Already have an account?{" "}
-            <Link to="/signin" className="font-medium text-brand-purple hover:text-brand-purple-dark">
+            <Link to="/signin" className="font-medium text-brand-purple hover:text-brand-purple-dark dark:text-[#7E69AB] dark:hover:text-brand-purple">
               Sign in
             </Link>
           </p>
         </div>
 
-        <Card>
+        <Card className="dark:bg-gray-800 dark:border-gray-700">
           <CardHeader>
-            <CardTitle>Join InterviewInsights</CardTitle>
-            <CardDescription>Enter details below or sign up with Google</CardDescription> {/* Updated description */}
+            <CardTitle className="dark:text-gray-100">Join InterviewLog</CardTitle>
+            <CardDescription className="dark:text-gray-400">Enter details below or sign up with Google</CardDescription>
           </CardHeader>
           <CardContent>
             {/* --- Email/Password Form --- */}
             <form onSubmit={handleSubmit} className="space-y-4">
               {/* Username field */}
               <div className="space-y-2">
-                <Label htmlFor="username">Username*</Label>
+                <Label htmlFor="username" className="dark:text-gray-200">Username*</Label>
                 <Input
                   id="username"
                   type="text"
@@ -147,14 +147,15 @@ const SignUp = () => {
                   onChange={(e) => setUsername(e.target.value)}
                   required
                   minLength={3}
-                  disabled={isLoading || isGoogleLoading} // Disable if any loading is active
+                  disabled={isLoading || isGoogleLoading}
+                  className="dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100 dark:placeholder:text-gray-400"
                 />
-                 <p className="text-xs text-gray-500">Must be at least 3 characters.</p>
+                 <p className="text-xs text-gray-500 dark:text-gray-400">Must be at least 3 characters.</p>
               </div>
 
               {/* Email field */}
               <div className="space-y-2">
-                <Label htmlFor="email">Email*</Label>
+                <Label htmlFor="email" className="dark:text-gray-200">Email*</Label>
                 <Input
                   id="email"
                   type="email"
@@ -162,13 +163,14 @@ const SignUp = () => {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required
-                  disabled={isLoading || isGoogleLoading} // Disable if any loading is active
+                  disabled={isLoading || isGoogleLoading}
+                  className="dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100 dark:placeholder:text-gray-400"
                 />
               </div>
 
               {/* Password field */}
               <div className="space-y-2">
-                <Label htmlFor="password">Password*</Label>
+                <Label htmlFor="password" className="dark:text-gray-200">Password*</Label>
                 <div className="relative">
                   <Input
                     id="password"
@@ -178,28 +180,29 @@ const SignUp = () => {
                     onChange={(e) => setPassword(e.target.value)}
                     required
                     minLength={8}
-                    disabled={isLoading || isGoogleLoading} // Disable if any loading is active
+                    disabled={isLoading || isGoogleLoading}
+                    className="dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100 dark:placeholder:text-gray-400"
                   />
                   <Button
                     type="button"
                     variant="ghost"
                     size="icon"
-                    className="absolute right-2 top-1/2 -translate-y-1/2 h-7 w-7"
+                    className="absolute right-2 top-1/2 -translate-y-1/2 h-7 w-7 dark:text-gray-300 dark:hover:bg-gray-600"
                     onClick={() => setShowPassword(!showPassword)}
                     aria-label={showPassword ? "Hide password" : "Show password"}
-                    disabled={isLoading || isGoogleLoading} // Disable if any loading is active
+                    disabled={isLoading || isGoogleLoading}
                   >
                     {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                   </Button>
                 </div>
-                 <p className="text-xs text-gray-500">Must be at least 8 characters.</p>
+                 <p className="text-xs text-gray-500 dark:text-gray-400">Must be at least 8 characters.</p>
               </div>
 
               {/* Submit Button */}
               <Button
                 type="submit"
-                className="w-full bg-brand-purple hover:bg-brand-purple-dark mt-4"
-                disabled={isLoading || isGoogleLoading} // Disable if any loading is active
+                className="w-full bg-brand-purple hover:bg-brand-purple-dark dark:bg-[#7E69AB] dark:text-white dark:hover:bg-[#6d5a95] mt-4"
+                disabled={isLoading || isGoogleLoading}
               >
                 {isLoading ? (
                   <span className="flex items-center justify-center gap-2">
@@ -218,16 +221,16 @@ const SignUp = () => {
 
             {/* --- Divider --- */}
             <div className="my-6 flex items-center">
-              <div className="flex-grow border-t border-gray-200"></div>
-              <span className="mx-4 flex-shrink text-sm text-gray-500">OR</span>
-              <div className="flex-grow border-t border-gray-200"></div>
+              <div className="flex-grow border-t border-gray-200 dark:border-gray-600"></div>
+              <span className="mx-4 flex-shrink text-sm text-gray-500 dark:text-gray-400">OR</span>
+              <div className="flex-grow border-t border-gray-200 dark:border-gray-600"></div>
             </div>
 
             {/* --- Google Sign In/Up Button --- */}
              <div className="flex justify-center">
                 {isGoogleLoading ? (
                      // Show loading state specific to Google
-                     <Button variant="outline" className="w-full" disabled>
+                     <Button variant="outline" className="w-full dark:border-gray-600 dark:text-gray-300" disabled>
                          <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Processing Google Sign-In...
                      </Button>
                 ) : (
@@ -235,12 +238,11 @@ const SignUp = () => {
                      <GoogleLogin
                         onSuccess={handleGoogleLoginSuccess}
                         onError={handleGoogleLoginError}
-                        useOneTap // Enable One Tap prompt
-                        shape="pill" // Button shape
-                        width="320px" // Adjust width as needed
-                        theme="outline" // Theme
-                        disabled={isLoading} // Disable if email/pass form is submitting
-                        context="signup" // Indicate context for Google Analytics etc.
+                        useOneTap
+                        shape="pill"
+                        width="320px"
+                        theme="outline"
+                        context="signup"
                       />
                 )}
              </div>
