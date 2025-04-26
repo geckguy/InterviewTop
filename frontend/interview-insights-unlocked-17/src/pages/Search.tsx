@@ -31,11 +31,15 @@ const Search = () => {
 
   // State
   const [searchQuery, setSearchQuery] = useState(searchParams.get("q") ?? "");
-  const [selectedCompany, setSelectedCompany] = useState<string | null>(
-    searchParams.get("company") ?? null // Initialize from URL param if present
-  );
+  // Change from single company to array of companies
+  const [selectedCompanies, setSelectedCompanies] = useState<string[]>(() => {
+    const companyParam = searchParams.get("companies");
+    return companyParam ? companyParam.split(',') : [];
+  });
+  
   const [results, setResults] = useState<InterviewCardProps[]>([]);
   const [companies, setCompanies] = useState<string[]>([]);
+  const [allAvailableCompanies, setAllAvailableCompanies] = useState<string[]>([]); // Store all available companies
   // --- REMOVE sortBy STATE ---
   // const [sortBy, setSortBy] = useState("recent");
   // --- END REMOVE sortBy STATE ---
@@ -46,6 +50,36 @@ const Search = () => {
   const [totalCount, setTotalCount] = useState(0); // Store total count
   const [hasMore, setHasMore] = useState(true); // Track if more results exist
   const TAKE = 12; // Results per page
+
+  // --- Initial data load for all companies ---
+  useEffect(() => {
+    let isMounted = true;
+    
+    const fetchAllCompanies = async () => {
+      try {
+        // Fetch a larger set to get all companies
+        const { experiences } = await fetchInterviews({
+          limit: 100 // Get a larger sample to capture more companies
+        });
+        
+        if (isMounted) {
+          const uniqueCompanies = Array.from(
+            new Set(experiences.map(e => e.company).filter(Boolean))
+          ) as string[];
+          
+          setAllAvailableCompanies(uniqueCompanies);
+        }
+      } catch (error) {
+        console.error("Error fetching all available companies:", error);
+      }
+    };
+    
+    fetchAllCompanies();
+    
+    return () => {
+      isMounted = false;
+    };
+  }, []);
 
   // --- Fetch Function ---
   const runSearch = async (currentPage: number, isNewSearch: boolean = false) => {
@@ -61,7 +95,8 @@ const Search = () => {
       try {
           const { experiences, total_count } = await fetchInterviews({
             search_term: searchQuery || undefined,
-            company: selectedCompany || undefined,
+            // Pass multiple companies as comma-separated string if any are selected
+            company: selectedCompanies.length > 0 ? selectedCompanies.join(',') : undefined,
             sort_by: "date_desc", // Always sort by recent (backend default)
             skip: currentPage * TAKE,
             limit: TAKE,
@@ -72,7 +107,8 @@ const Search = () => {
           setResults(prev => isNewSearch ? newCards : [...prev, ...newCards]);
           setTotalCount(total_count); // Update total count
 
-          // Update company list only on the first page of a new search
+          // Update the filtered list of companies shown in results
+          // But don't overwrite allAvailableCompanies
           if (currentPage === 0 && isNewSearch) {
               setCompanies(
                   Array.from(
@@ -99,7 +135,7 @@ const Search = () => {
   useEffect(() => {
      // Run search on initial load or when query/company changes via URL/state
      runSearch(0, true); // Run as a new search
-  }, [searchQuery, selectedCompany]); // Dependencies trigger new search
+  }, [searchQuery, selectedCompanies]); // Dependencies trigger new search
 
   // --- Handler for form submission ---
   const handleSearchSubmit = (e: React.FormEvent) => {
@@ -107,26 +143,53 @@ const Search = () => {
     // Update URL params to reflect current state
     const params = new URLSearchParams();
     if (searchQuery) params.set("q", searchQuery);
-    if (selectedCompany) params.set("company", selectedCompany);
+    if (selectedCompanies.length > 0) params.set("companies", selectedCompanies.join(','));
     navigate({ search: params.toString() }, { replace: true });
-    // The useEffect will trigger the search because searchQuery/selectedCompany state changes
+    // The useEffect will trigger the search because searchQuery/selectedCompanies state changes
     // or because the URL change causes a re-render (though state change is primary driver here)
     runSearch(0, true); // Explicitly trigger new search
   };
 
-  // --- Handler for selecting a company ---
-  const handleSelectCompany = (company: string | null) => {
-    setSelectedCompany(company);
-    // Update URL param for company
+  // --- Handlers for company filters ---
+  const handleSelectCompany = (company: string) => {
+    if (!selectedCompanies.includes(company)) {
+      const newSelectedCompanies = [...selectedCompanies, company];
+      setSelectedCompanies(newSelectedCompanies);
+      
+      // Update URL params
+      const params = new URLSearchParams(location.search);
+      params.set("companies", newSelectedCompanies.join(','));
+      navigate({ search: params.toString() }, { replace: true });
+      
+      // The useEffect will trigger the search
+    }
+  };
+
+  const handleClearCompany = (company: string) => {
+    const newSelectedCompanies = selectedCompanies.filter(c => c !== company);
+    setSelectedCompanies(newSelectedCompanies);
+    
+    // Update URL params
     const params = new URLSearchParams(location.search);
-    if (company) {
-        params.set("company", company);
+    if (newSelectedCompanies.length > 0) {
+      params.set("companies", newSelectedCompanies.join(','));
     } else {
-        params.delete("company");
+      params.delete("companies");
     }
     navigate({ search: params.toString() }, { replace: true });
+    
     // The useEffect will trigger the search
-    runSearch(0, true); // Trigger new search
+  };
+
+  const handleClearAllCompanies = () => {
+    setSelectedCompanies([]);
+    
+    // Update URL params
+    const params = new URLSearchParams(location.search);
+    params.delete("companies");
+    navigate({ search: params.toString() }, { replace: true });
+    
+    // The useEffect will trigger the search
   };
 
   // --- Handler for loading more results ---
@@ -177,40 +240,17 @@ const Search = () => {
             {/* Sidebar */}
             <aside className={`md:w-1/4 lg:w-1/5 space-y-4 ${showFilters ? "block mb-6 md:mb-0" : "hidden md:block"}`}> {/* Adjusted width */}
               <CompanyFilter
-                companies={companies}
-                selectedCompany={selectedCompany}
-                onSelectCompany={handleSelectCompany} // Use the new handler
+                companies={allAvailableCompanies.length > 0 ? allAvailableCompanies : companies}
+                selectedCompanies={selectedCompanies}
+                onSelectCompany={handleSelectCompany}
+                onClearCompany={handleClearCompany}
+                onClearAll={handleClearAllCompanies}
               />
               {/* Add other filters here if needed */}
             </aside>
 
             {/* Results */}
-            <section className="md:w-3/4 lg:w-4/5"> {/* Adjusted width */}
-              {/* --- REMOVED RESULT COUNT / SORT BAR --- */}
-              {/*
-              <Card className="mb-6">
-                <CardContent className="p-4 flex justify-between items-center">
-                  <p className="text-sm text-gray-600">
-                    {loading ? "Loading…" : `${results.length} results`}
-                  </p>
-                  <Tabs value={sortBy} onValueChange={v => setSortBy(v)} className="w-auto">
-                    <TabsList className="h-8 bg-gray-100">
-                      <TabsTrigger value="recent" className="text-xs h-6 px-2">
-                        Recent
-                      </TabsTrigger>
-                      <TabsTrigger value="popularity" className="text-xs h-6 px-2">
-                        Likes
-                      </TabsTrigger>
-                      <TabsTrigger value="comments" className="text-xs h-6 px-2">
-                        Comments
-                      </TabsTrigger>
-                    </TabsList>
-                  </Tabs>
-                </CardContent>
-              </Card>
-              */}
-               {/* --- END REMOVED BAR --- */}
-
+            <section className="md:w-3/4 lg:w-4/5">
               {/* Initial Loading Placeholder */}
               {loading && results.length === 0 && (
                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
@@ -275,7 +315,6 @@ const Search = () => {
               {!loadingMore && !hasMore && results.length > 0 && (
                   <p className="text-center text-gray-500 mt-8 text-sm">You've reached the end of the results.</p>
               )}
-
             </section>
           </div>
         </div>
