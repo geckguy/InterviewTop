@@ -21,8 +21,8 @@ import { useToast } from "@/components/ui/use-toast"; // Import useToast
 
 // Import new API functions
 import { fetchInterview, fetchSimilar, fetchSaveStatus, savePost, unsavePost } from "@/api/interviews";
-// Ensure types are correctly imported and used
-import { InterviewExperience, InterviewRound, LeetcodeQuestion, DesignQuestion, TestCase } from "@/types/backend";
+// Import only the type that is exported from backend.ts
+import { InterviewExperience } from "@/types/backend";
 import { InterviewCardProps } from "@/components/InterviewCard";
 
 // Helper functions (getDifficultyBadgeClass, getResultBadgeClass) remain the same...
@@ -118,30 +118,33 @@ const InterviewPost = () => {
       let isMounted = true;
       const loadData = async () => {
           try {
-              console.log(`[InterviewPost] Fetching data for ID: ${id}`);
+              // Remove detailed console logging
               // Fetch interview and similar posts
               const [interviewData, similarData] = await Promise.all([
                   fetchInterview(id).catch(err => {
-                      console.error("[InterviewPost] Error fetching main interview:", err);
+                      // Keep error logging, but without details
+                      console.error("[InterviewPost] Error fetching interview");
                       if (err.response?.status === 404) throw new Error("Interview not found.");
                       if (err.response?.status === 401 || err.response?.status === 403) throw new Error("Unauthorized. Please log in.");
                       throw new Error("Failed to load interview details.");
                   }),
                   fetchSimilar(id, 3).catch(err => {
-                      console.warn("[InterviewPost] Error fetching similar interviews:", err);
+                      console.warn("[InterviewPost] Error fetching similar interviews");
                       return [];
                   })
               ]);
 
               if (isMounted) {
-                  console.log("[InterviewPost] Interview data fetched:", JSON.stringify(interviewData, null, 2));
-                  setInterview(interviewData); setLoading(false);
+                  // Remove console logging of interview data
+                  setInterview(interviewData); 
+                  setLoading(false);
 
-                  console.log("[InterviewPost] Similar data fetched:", similarData);
-                  setSimilar(similarData.map(toCard)); setLoadingSimilar(false);
+                  // Remove console logging of similar data
+                  setSimilar(similarData.map(toCard)); 
+                  setLoadingSimilar(false);
               }
           } catch (err: any) {
-              console.error("[InterviewPost] Error in loadData:", err);
+              console.error("[InterviewPost] Error in loadData");
               if (isMounted) {
                   setError(err.message || "An unexpected error occurred.");
                   setInterview(null); setSimilar([]);
@@ -303,7 +306,7 @@ const InterviewPost = () => {
                   <Card>
                     <CardHeader className="p-6"><CardTitle>Interview Process</CardTitle></CardHeader>
                     <CardContent className="p-6 pt-0 space-y-6">
-                      {(interview.interview_details as InterviewRound[]).map((round, idx) => ( // Use idx as key if round_number isn't unique
+                      {(interview.interview_details as any[]).map((round, idx) => ( // Use any[] instead of InterviewRound[]
                         <div key={`round-${idx}`} className="pb-4 border-b last:border-b-0">
                           <h4 className="text-md font-semibold mb-2">
                             {/* Handle potentially missing round_number gracefully */}
@@ -327,7 +330,7 @@ const InterviewPost = () => {
                   <Card>
                       <CardHeader className="p-6"><CardTitle>Technical Questions (Coding)</CardTitle></CardHeader>
                       <CardContent className="p-6 pt-0 space-y-6">
-                          {(interview.leetcode_questions as LeetcodeQuestion[]).map((lc, index) => (
+                          {(interview.leetcode_questions as any[]).map((lc, index) => ( // Use any[] instead of LeetcodeQuestion[]
                               <div key={`lc-${index}`} className="pb-4 border-b last:border-b-0">
                                   {/* Problem Name */}
                                   {lc.problem_name && <h4 className="text-md font-semibold mb-2">{lc.problem_name}</h4>}
@@ -351,7 +354,7 @@ const InterviewPost = () => {
                                   {lc.test_cases && Array.isArray(lc.test_cases) && lc.test_cases.length > 0 && (
                                       <div className="text-sm">
                                           <p className="font-medium text-gray-800 mb-2">Test Cases:</p>
-                                          {(lc.test_cases as TestCase[]).map((tc, tc_index) => (
+                                          {(lc.test_cases as any[]).map((tc, tc_index) => ( // Use any[] instead of TestCase[]
                                               <div key={`tc-${tc_index}`} className="mb-3 p-3 bg-gray-50 rounded border border-gray-200">
                                                   <p><strong className="text-gray-600">Input:</strong> <code className="text-xs bg-gray-200 px-1 py-0.5 rounded">{JSON.stringify(tc.input)}</code></p>
                                                   <p><strong className="text-gray-600">Output:</strong> <code className="text-xs bg-gray-200 px-1 py-0.5 rounded">{JSON.stringify(tc.output)}</code></p>
@@ -372,7 +375,7 @@ const InterviewPost = () => {
                  <Card>
                    <CardHeader className="p-6"><CardTitle>System Design Questions</CardTitle></CardHeader>
                    <CardContent className="p-6 pt-0 space-y-6">
-                     {(interview.design_questions as DesignQuestion[]).map((dq, index) => (
+                     {(interview.design_questions as any[]).map((dq, index) => ( // Use any[] instead of DesignQuestion[]
                        <div key={`dq-${index}`} className="pb-4 border-b last:border-b-0">
                           {dq.design_task && <h4 className="text-md font-semibold mb-2">{dq.design_task}</h4>}
                           {dq.description && <p className="text-sm text-gray-700 mb-3">{dq.description}</p>}

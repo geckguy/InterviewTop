@@ -129,7 +129,18 @@ async def find_interviews(
         ]
 
     filter_and_conditions = []
-    if company: filter_and_conditions.append({"company": re.compile(f"^{re.escape(company)}$", re.IGNORECASE)})
+    
+    # Handle multiple company filter (comma-separated)
+    if company:
+        company_list = [c.strip() for c in company.split(',') if c.strip()]
+        if len(company_list) == 1:
+            # Single company - use exact match like before
+            filter_and_conditions.append({"company": re.compile(f"^{re.escape(company_list[0])}$", re.IGNORECASE)})
+        elif len(company_list) > 1:
+            # Multiple companies - use $in operator
+            company_patterns = [re.compile(f"^{re.escape(c)}$", re.IGNORECASE) for c in company_list]
+            filter_and_conditions.append({"company": {"$in": company_patterns}})
+    
     if position: filter_and_conditions.append({"position": re.compile(f"^{re.escape(position)}$", re.IGNORECASE)})
     if difficulty: filter_and_conditions.append({"difficulty": re.compile(f"^{re.escape(difficulty)}$", re.IGNORECASE)})
     if offer_status: filter_and_conditions.append({"offer_status": re.compile(f"^{re.escape(offer_status)}$", re.IGNORECASE)})

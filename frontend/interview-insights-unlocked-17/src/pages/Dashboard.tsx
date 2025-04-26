@@ -5,7 +5,7 @@ import { useState } from "react"; // Import useState
 import { Button } from "@/components/ui/button";
 // Added History, Bookmark icons
 import { MessageSquare, Search, Loader2, History, Bookmark } from "lucide-react";
-import { Navigate, Link, useNavigate, useLocation } from "react-router-dom";
+import { Navigate, Link, useLocation, useNavigate } from "react-router-dom";
 import Navbar from "@/components/Navbar";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useQuery } from "@tanstack/react-query";
@@ -49,19 +49,19 @@ const Dashboard = () => {
   const loadingMessage = `Loading ${viewMode} posts...`;
   const errorMessage = `Error loading ${viewMode} posts. Please try again later.`;
   const emptyMessage = viewMode === 'visited'
-    ? <>You haven't viewed any posts yet. Start <Link to="/search" className="text-brand-purple hover:underline font-medium mx-1">searching</Link>!</>
-    : <>You haven't saved any posts yet. Find experiences <Link to="/search" className="text-brand-purple hover:underline font-medium mx-1">here</Link> and save them using the <Bookmark className="inline h-4 w-4 mx-1 text-gray-500"/> icon!</>;
+    ? <>You haven't viewed any posts yet. Start <Link to="/search" className="text-brand-purple hover:underline font-medium mx-1 dark:text-brand-purple-light">searching</Link>!</>
+    : <>You haven't saved any posts yet. Find experiences <Link to="/search" className="text-brand-purple hover:underline font-medium mx-1 dark:text-brand-purple-light">here</Link> and save them using the <Bookmark className="inline h-4 w-4 mx-1 text-gray-500 dark:text-gray-400"/> icon!</>;
 
   return (
     <>
       <Navbar /> {/* Navbar includes the Sign Out button */}
-      <div className="min-h-screen bg-gray-50 pt-20 pb-16">
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 pt-20 pb-16">
         <div className="container mx-auto px-4">
           {/* --- Header Section --- */}
           <div className="flex flex-col sm:flex-row justify-between items-center mb-8 gap-4">
-            <h1 className="text-3xl font-bold text-center sm:text-left">Your Dashboard</h1>
+            <h1 className="text-3xl font-bold text-center sm:text-left dark:text-gray-50">Your Dashboard</h1>
             {user && (
-              <span className="text-lg text-gray-600 text-center sm:text-right">
+              <span className="text-lg text-gray-600 dark:text-gray-300 text-center sm:text-right">
                 Welcome, {user.username || user.email}!
               </span>
             )}
@@ -74,26 +74,26 @@ const Dashboard = () => {
 
             {/* --- Posts Section (Main Area with Tabs) --- */}
             <div className="lg:col-span-2 space-y-6">
-              <Card>
+              <Card className="dark:border-gray-700">
                 {/* Tabs for switching between Visited and Saved */}
-                <CardHeader className="p-0 border-b"> {/* Reduced padding */}
+                <CardHeader className="p-0 border-b dark:border-gray-700"> {/* Reduced padding */}
                     <Tabs value={viewMode} onValueChange={(value) => setViewMode(value as 'visited' | 'saved')} className="w-full">
-                        <TabsList className="grid w-full grid-cols-2 h-12 rounded-t-lg rounded-b-none"> {/* Adjust height/rounding */}
-                            <TabsTrigger value="visited" className="gap-1.5 data-[state=active]:bg-brand-purple-light data-[state=active]:text-brand-purple data-[state=active]:shadow-none">
+                        <TabsList className="grid w-full grid-cols-2 h-12 rounded-t-lg rounded-b-none dark:bg-gray-800"> {/* Adjust height/rounding */}
+                            <TabsTrigger value="visited" className="gap-1.5 data-[state=active]:bg-brand-purple-light data-[state=active]:text-brand-purple dark:data-[state=active]:bg-gray-950 dark:data-[state=active]:text-brand-purple-light data-[state=active]:shadow-none">
                                 <History className="h-4 w-4"/> Visited
                             </TabsTrigger>
-                            <TabsTrigger value="saved" className="gap-1.5 data-[state=active]:bg-brand-purple-light data-[state=active]:text-brand-purple data-[state=active]:shadow-none">
+                            <TabsTrigger value="saved" className="gap-1.5 data-[state=active]:bg-brand-purple-light data-[state=active]:text-brand-purple dark:data-[state=active]:bg-gray-950 dark:data-[state=active]:text-brand-purple-light data-[state=active]:shadow-none">
                                 <Bookmark className="h-4 w-4"/> Saved
                             </TabsTrigger>
                         </TabsList>
                     </Tabs>
                 </CardHeader>
 
-                 <CardContent className="pt-6"> {/* Added padding top */}
+                 <CardContent className="pt-6 dark:bg-gray-800"> {/* Added padding top */}
                      {/* Dynamic Title and Button */}
                     <div className="flex flex-wrap justify-between items-center gap-2 mb-4">
-                       <CardTitle className="text-xl">{cardTitle}</CardTitle>
-                       <Button variant="outline" size="sm" onClick={() => handleNavigate('/search')}>
+                       <CardTitle className="text-xl dark:text-gray-50">{cardTitle}</CardTitle>
+                       <Button variant="outline" size="sm" onClick={() => handleNavigate('/search')} className="dark:text-gray-300 dark:border-gray-600 dark:hover:bg-gray-700">
                            Find More Experiences
                        </Button>
                     </div>
@@ -101,7 +101,7 @@ const Dashboard = () => {
                   {/* --- Conditional Rendering based on query state --- */}
                   {/* Loading State */}
                   {isLoadingPosts && (
-                      <div className="text-center py-10 flex items-center justify-center text-gray-500">
+                      <div className="text-center py-10 flex items-center justify-center text-gray-500 dark:text-gray-400">
                           <Loader2 className="h-5 w-5 animate-spin mr-2"/>
                           {loadingMessage}
                       </div>
@@ -109,7 +109,7 @@ const Dashboard = () => {
 
                   {/* Error State */}
                   {!isLoadingPosts && errorPosts && (
-                      <p className="text-red-600 text-center py-10">{errorMessage}</p>
+                      <p className="text-red-600 dark:text-red-400 text-center py-10">{errorMessage}</p>
                   )}
 
                   {/* Success State - Data Display */}
@@ -121,7 +121,7 @@ const Dashboard = () => {
                            <InterviewCard key={postProps.id} {...postProps} />
                         ) : (
                            // Optionally log or render a placeholder for invalid data
-                           <div key={Math.random()} className="p-4 border rounded text-red-500 text-xs">Invalid post data encountered.</div>
+                           <div key={Math.random()} className="p-4 border rounded text-red-500 text-xs dark:border-gray-600 dark:text-red-400">Invalid post data encountered.</div>
                         )
                       ))}
                     </div>
@@ -129,7 +129,7 @@ const Dashboard = () => {
 
                   {/* Empty State */}
                   {!isLoadingPosts && !errorPosts && (!posts || posts.length === 0) && (
-                      <p className="text-gray-500 text-center py-10">
+                      <p className="text-gray-500 dark:text-gray-400 text-center py-10">
                           {emptyMessage}
                       </p>
                   )}
@@ -140,15 +140,15 @@ const Dashboard = () => {
             {/* --- Sidebar Column --- */}
             <div className="space-y-6">
               {/* Quick Actions Card */}
-              <Card>
-                <CardHeader>
-                  <CardTitle>Quick Actions</CardTitle>
+              <Card className="dark:border-gray-700">
+                <CardHeader className="dark:bg-gray-800">
+                  <CardTitle className="dark:text-gray-50">Quick Actions</CardTitle>
                 </CardHeader>
-                <CardContent className="space-y-2">
+                <CardContent className="space-y-2 dark:bg-gray-800">
                   <Button
                      variant="default"
                      size="sm"
-                     className="w-full justify-start bg-brand-purple hover:bg-brand-purple-dark text-white"
+                     className="w-full justify-start bg-brand-purple hover:bg-brand-purple-dark text-white dark:bg-[#7E69AB] dark:text-white dark:hover:bg-[#6d5a95]"
                      onClick={() => handleNavigate('/share-experience')}
                    >
                     <MessageSquare className="mr-2 h-4 w-4" />
@@ -157,7 +157,7 @@ const Dashboard = () => {
                   <Button
                      variant="outline"
                      size="sm"
-                     className="w-full justify-start"
+                     className="w-full justify-start dark:text-gray-300 dark:border-gray-600 dark:hover:bg-gray-700"
                      onClick={() => handleNavigate('/search')}
                   >
                     <Search className="mr-2 h-4 w-4" />
