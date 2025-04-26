@@ -1,5 +1,5 @@
 import { cn } from "@/lib/utils";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import CompanyBadge from "./CompanyBadge";
 
 interface CompanyFilterProps {
@@ -26,10 +26,25 @@ const CompanyFilter = ({
     if (companies.length > 0 && JSON.stringify(companies) !== JSON.stringify(stableCompanies)) {
       setStableCompanies([...companies]);
     }
-  }, [companies]);
+  }, [companies, stableCompanies]);
+  
+  // Create sorted companies list with selected companies at the top
+  const sortedCompanies = useMemo(() => {
+    // First add all selected companies
+    const result: string[] = [...selectedCompanies];
+    
+    // Then add all other companies that aren't already in the list
+    stableCompanies.forEach(company => {
+      if (!selectedCompanies.includes(company)) {
+        result.push(company);
+      }
+    });
+    
+    return result;
+  }, [selectedCompanies, stableCompanies]);
   
   // Display first 8 companies, and show all if showAll is true
-  const displayedCompanies = showAll ? stableCompanies : stableCompanies.slice(0, 8);
+  const displayedCompanies = showAll ? sortedCompanies : sortedCompanies.slice(0, 8);
   
   return (
     <div className="p-4 bg-white rounded-lg shadow-sm border border-gray-100">
@@ -77,12 +92,12 @@ const CompanyFilter = ({
           );
         })}
         
-        {stableCompanies.length > 8 && (
+        {sortedCompanies.length > 8 && (
           <button
             onClick={() => setShowAll(!showAll)}
             className="px-3 py-1.5 rounded-full text-sm font-medium bg-white text-brand-purple border border-brand-purple hover:bg-brand-purple-light transition-colors"
           >
-            {showAll ? "Show Less" : `+${stableCompanies.length - 8} more`}
+            {showAll ? "Show Less" : `+${sortedCompanies.length - 8} more`}
           </button>
         )}
       </div>

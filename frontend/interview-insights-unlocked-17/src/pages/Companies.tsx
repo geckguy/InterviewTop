@@ -1,15 +1,16 @@
 import { useState, useMemo } from 'react';
 import Navbar from "../components/Navbar";
-import Footer from "../components/Footer";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Search } from "lucide-react";
 import { useQuery } from '@tanstack/react-query'; // Import useQuery
 import { fetchCompaniesSummary, CompanyInfo } from '@/api/interviews'; // Import the API call and type
 import CompanyBadge from '@/components/CompanyBadge'; // Import CompanyBadge
+import { Link, useNavigate } from 'react-router-dom'; // Add Link import
 
 const Companies = () => {
   const [searchTerm, setSearchTerm] = useState('');
+  const navigate = useNavigate();
 
   // Fetch data using react-query
   const { data: companiesData, isLoading, error } = useQuery<CompanyInfo[], Error>({
@@ -24,6 +25,12 @@ const Companies = () => {
       company.name.toLowerCase().includes(searchTerm.toLowerCase())
     );
   }, [companiesData, searchTerm]); // Correctly closed useMemo hook
+
+  // Function to handle company click
+  const handleCompanyClick = (companyName: string) => {
+    // Navigate to search page with company filter - using 'companies' parameter
+    navigate(`/search?companies=${encodeURIComponent(companyName)}`);
+  };
 
   return (
     <>
@@ -69,7 +76,11 @@ const Companies = () => {
               {filteredCompanies.length > 0 ? (
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
                   {filteredCompanies.map((company, index) => (
-                    <Card key={index} className="hover:shadow-md transition-shadow cursor-pointer">
+                    <Card 
+                      key={index} 
+                      className="hover:shadow-md transition-shadow cursor-pointer"
+                      onClick={() => handleCompanyClick(company.name)}
+                    >
                       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                         <CardTitle className="text-lg font-medium">{company.name}</CardTitle>
                         <CompanyBadge name={company.name} size="md" />
