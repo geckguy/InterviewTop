@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Navbar from "../components/Navbar";
-import Footer from "../components/Footer";
+// import Footer from "../components/Footer"; // Removing unused import
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -19,7 +19,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 // import { Separator } from "@/components/ui/separator";
 import { Progress } from "@/components/ui/progress";
 import { shareExperience as shareExperienceApi } from "@/api/interviews";
-import { InterviewExperience, InterviewRound, LeetcodeQuestion, DesignQuestion } from "@/types/backend"; // Import detailed types if needed later
+import { InterviewExperience } from "@/types/backend"; // Import detailed types if needed later
 
 
 // Simplified structure for this iteration
@@ -176,15 +176,15 @@ const ShareExperience = () => {
     return (
       <>
         <Navbar />
-        <div className="min-h-screen bg-gray-50 pt-20 pb-16">
+        <div className="min-h-screen bg-gray-50 dark:bg-black pt-20 pb-16">
           <div className="container mx-auto px-4 max-w-2xl">
-            <Card className="my-6">
-              <CardContent className="pt-6 px-6 text-center">
-                <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
-                  <Check className="h-8 w-8 text-green-600" />
+            <Card className="my-6 dark:border-gray-700">
+              <CardContent className="pt-6 px-6 text-center dark:bg-gray-900">
+                <div className="w-16 h-16 bg-green-100 dark:bg-green-900 rounded-full flex items-center justify-center mx-auto mb-6">
+                  <Check className="h-8 w-8 text-green-600 dark:text-green-400" />
                 </div>
-                <h2 className="text-2xl font-bold mb-3">Thank You!</h2>
-                <p className="text-gray-600 mb-6">
+                <h2 className="text-2xl font-bold mb-3 dark:text-gray-50">Thank You!</h2>
+                <p className="text-gray-600 dark:text-gray-300 mb-6">
                   Your interview experience has been submitted. Your insights will help others prepare.
                 </p>
                 <div className="flex flex-col sm:flex-row gap-3 justify-center mt-4">
@@ -200,12 +200,13 @@ const ShareExperience = () => {
                       setFormStep(1);
                       setFormProgress(25);
                       setFormSubmitted(false);
-                  }}>
+                  }}
+                  className="dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700">
                     Share Another Experience
                   </Button>
-                  {/* Update navigate path if /explore is removed */}
-                  <Button onClick={() => navigate("/search")}>
-                    Explore Experiences
+                  <Button onClick={() => navigate("/search")}
+                  className="bg-brand-purple hover:bg-brand-purple-dark dark:bg-[#7E69AB] dark:text-white dark:hover:bg-[#6d5a95]">
+                    Search Experiences
                   </Button>
                 </div>
               </CardContent>
@@ -221,7 +222,7 @@ const ShareExperience = () => {
   return (
     <>
       <Navbar />
-      <div className="min-h-screen bg-gray-50 pt-20 pb-16">
+      <div className="min-h-screen bg-gray-50 dark:bg-black pt-20 pb-16">
         <div className="container mx-auto px-4">
           <div className="max-w-2xl mx-auto">
             {/* Header */}
@@ -243,8 +244,8 @@ const ShareExperience = () => {
               </div>
             </div>
 
-            <Card>
-              <CardContent className="pt-6">
+            <Card className="dark:border-gray-700">
+              <CardContent className="pt-6 dark:bg-gray-900">
                 <form onSubmit={handleSubmit} className="space-y-6">
                   {/* --- STEP 1: Basic Info --- */}
                   {formStep === 1 && (
@@ -280,7 +281,7 @@ const ShareExperience = () => {
                         <Label>Interview Result*</Label>
                         <RadioGroup value={formData.result} onValueChange={(value) => handleRadioChange("result", value)} className="flex flex-wrap gap-3">
                           {(['offer', 'rejected', 'pending'] as const).map((res) => (
-                             <div key={res} className="flex items-center space-x-2 bg-gray-50 px-3 py-2 rounded-md border border-gray-200 has-[:checked]:border-brand-purple has-[:checked]:bg-brand-purple-light">
+                             <div key={res} className="flex items-center space-x-2 bg-gray-50 dark:bg-gray-900 px-3 py-2 rounded-md border border-gray-200 dark:border-gray-700 has-[:checked]:border-brand-purple dark:has-[:checked]:border-brand-purple-light has-[:checked]:bg-brand-purple-light dark:has-[:checked]:bg-brand-purple/20">
                                <RadioGroupItem value={res} id={res} />
                                <Label htmlFor={res} className="cursor-pointer capitalize">{res}</Label>
                              </div>
@@ -327,9 +328,9 @@ Round 3-5: Onsite loop (coding, system design, behavioral)..."
                          <p className="text-xs text-gray-500">Include number of rounds, types (coding, design, behavioral), and duration if possible.</p>
                       </div>
 
-                      <div className="bg-amber-50 p-4 rounded-md border border-amber-100 flex gap-3">
+                      <div className="bg-amber-50 dark:bg-amber-900/30 p-4 rounded-md border border-amber-100 dark:border-amber-800 flex gap-3">
                         <Info className="h-5 w-5 text-amber-500 flex-shrink-0 mt-0.5" />
-                        <p className="text-sm text-amber-800">Focus on the structure and flow of the interview process here.</p>
+                        <p className="text-sm text-amber-800 dark:text-amber-300">Focus on the structure and flow of the interview process here.</p>
                       </div>
                     </div>
                   )}
@@ -409,9 +410,9 @@ Round 3-5: Onsite loop (coding, system design, behavioral)..."
                         />
                       </div>
 
-                       <div className="bg-blue-50 p-4 rounded-md border border-blue-100 flex gap-3">
+                       <div className="bg-blue-50 dark:bg-blue-900/30 p-4 rounded-md border border-blue-100 dark:border-blue-800 flex gap-3">
                         <AlertTriangle className="h-5 w-5 text-blue-500 flex-shrink-0 mt-0.5" />
-                        <p className="text-sm text-blue-800">Please be mindful of NDAs. Share general topics or question types if specific wording is confidential.</p>
+                        <p className="text-sm text-blue-800 dark:text-blue-300">Please be mindful of NDAs. Share general topics or question types if specific wording is confidential.</p>
                        </div>
                     </div>
                   )}
@@ -425,21 +426,21 @@ Round 3-5: Onsite loop (coding, system design, behavioral)..."
                       </div>
 
                       {/* Review Section - Display collected data */}
-                      <Card className="border-gray-200">
-                        <CardHeader className="pb-3 pt-4"><CardTitle className="text-lg">Basic Info</CardTitle></CardHeader>
-                        <CardContent className="grid grid-cols-2 gap-x-4 gap-y-2 text-sm">
-                          <div><span className="text-gray-500">Company:</span> {formData.company}</div>
-                          <div><span className="text-gray-500">Position:</span> {formData.position}</div>
-                          <div><span className="text-gray-500">Seniority:</span> {formData.seniority || 'N/A'}</div>
-                          <div><span className="text-gray-500">Location:</span> {formData.location || 'N/A'}</div>
-                          <div><span className="text-gray-500">Result:</span> <span className="capitalize">{formData.result}</span></div>
-                          <div><span className="text-gray-500">Difficulty:</span> <span className="capitalize">{formData.difficulty}</span></div>
+                      <Card className="border-gray-200 dark:border-gray-700">
+                        <CardHeader className="pb-3 pt-4 dark:bg-gray-900"><CardTitle className="text-lg dark:text-gray-50">Basic Info</CardTitle></CardHeader>
+                        <CardContent className="grid grid-cols-2 gap-x-4 gap-y-2 text-sm dark:bg-gray-900">
+                          <div><span className="text-gray-500 dark:text-gray-400">Company:</span> <span className="dark:text-gray-100">{formData.company}</span></div>
+                          <div><span className="text-gray-500 dark:text-gray-400">Position:</span> <span className="dark:text-gray-100">{formData.position}</span></div>
+                          <div><span className="text-gray-500 dark:text-gray-400">Seniority:</span> <span className="dark:text-gray-100">{formData.seniority || 'N/A'}</span></div>
+                          <div><span className="text-gray-500 dark:text-gray-400">Location:</span> <span className="dark:text-gray-100">{formData.location || 'N/A'}</span></div>
+                          <div><span className="text-gray-500 dark:text-gray-400">Result:</span> <span className="capitalize dark:text-gray-100">{formData.result}</span></div>
+                          <div><span className="text-gray-500 dark:text-gray-400">Difficulty:</span> <span className="capitalize dark:text-gray-100">{formData.difficulty}</span></div>
                         </CardContent>
                       </Card>
 
-                       <Card className="border-gray-200">
-                        <CardHeader className="pb-3 pt-4"><CardTitle className="text-lg">Interview Details</CardTitle></CardHeader>
-                        <CardContent className="space-y-3 text-sm">
+                       <Card className="border-gray-200 dark:border-gray-700">
+                        <CardHeader className="pb-3 pt-4 dark:bg-gray-900"><CardTitle className="text-lg dark:text-gray-50">Interview Details</CardTitle></CardHeader>
+                        <CardContent className="space-y-3 text-sm dark:bg-gray-900">
                             <ReviewSection title="Interview Rounds" content={formData.interviewProcessRounds} />
                             <ReviewSection title="Coding Questions" content={formData.leetcodeQuestions} />
                             <ReviewSection title="System Design" content={formData.designQuestions} />
@@ -449,24 +450,25 @@ Round 3-5: Onsite loop (coding, system design, behavioral)..."
                         </CardContent>
                       </Card>
 
-                       <div className="flex items-center space-x-2 p-4 bg-green-50 rounded-md border border-green-100">
-                        <Check className="w-5 h-5 text-green-600 flex-shrink-0" />
-                        <p className="text-sm text-green-800">Please review your submission. Click "Submit Experience" when ready.</p>
+                       <div className="flex items-center space-x-2 p-4 bg-green-50 dark:bg-green-900/30 rounded-md border border-green-100 dark:border-green-800">
+                        <Check className="w-5 h-5 text-green-600 dark:text-green-400 flex-shrink-0" />
+                        <p className="text-sm text-green-800 dark:text-green-300">Please review your submission. Click "Submit Experience" when ready.</p>
                       </div>
                     </div>
                   )}
 
                   {/* Navigation Buttons */}
-                  <div className="flex justify-between pt-4 border-t border-gray-100 mt-6">
-                    <Button type="button" variant="outline" onClick={prevStep} disabled={formStep === 1 || isLoading}>
+                  <div className="flex justify-between pt-4 border-t border-gray-100 dark:border-gray-700 mt-6">
+                    <Button type="button" variant="outline" onClick={prevStep} disabled={formStep === 1 || isLoading}
+                      className="dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700">
                       Back
                     </Button>
                     {formStep < 4 ? (
-                      <Button type="button" className="bg-brand-purple hover:bg-brand-purple-dark" onClick={nextStep} disabled={isLoading}>
+                      <Button type="button" className="bg-brand-purple hover:bg-brand-purple-dark dark:bg-[#7E69AB] dark:text-white dark:hover:bg-[#6d5a95]" onClick={nextStep} disabled={isLoading}>
                         Continue
                       </Button>
                     ) : (
-                      <Button type="submit" className="bg-brand-purple hover:bg-brand-purple-dark min-w-[150px]" disabled={isLoading}>
+                      <Button type="submit" className="bg-brand-purple hover:bg-brand-purple-dark dark:bg-[#7E69AB] dark:text-white dark:hover:bg-[#6d5a95] min-w-[150px]" disabled={isLoading}>
                         {isLoading ? (
                             <span className="flex items-center justify-center gap-2"><Loader2 className="h-4 w-4 animate-spin" /> Submitting...</span>
                         ) : (
@@ -480,25 +482,25 @@ Round 3-5: Onsite loop (coding, system design, behavioral)..."
             </Card>
 
             {/* Why Share Section (No Changes Needed) */}
-            <div className="mt-8 bg-white p-6 rounded-lg shadow-sm border border-gray-100">
-              <h3 className="text-lg font-semibold mb-4">Why Share Your Experience?</h3>
+            <div className="mt-8 bg-white dark:bg-gray-900 p-6 rounded-lg shadow-sm border border-gray-100 dark:border-gray-700">
+              <h3 className="text-lg font-semibold mb-4 dark:text-gray-50">Why Share Your Experience?</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="flex gap-3">
-                  <div className="w-10 h-10 bg-brand-purple-light rounded-full flex items-center justify-center flex-shrink-0">
-                    <Users className="h-5 w-5 text-brand-purple" />
+                  <div className="w-10 h-10 bg-brand-purple-light dark:bg-gray-800 rounded-full flex items-center justify-center flex-shrink-0">
+                    <Users className="h-5 w-5 text-brand-purple dark:text-brand-purple-light" />
                   </div>
                   <div>
-                    <h4 className="font-medium">Help Others</h4>
-                    <p className="text-sm text-gray-600 mt-1">Guide others through their interview preparation.</p>
+                    <h4 className="font-medium dark:text-gray-100">Help Others</h4>
+                    <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">Guide others through their interview preparation.</p>
                   </div>
                 </div>
                 <div className="flex gap-3">
-                  <div className="w-10 h-10 bg-brand-purple-light rounded-full flex items-center justify-center flex-shrink-0">
-                    <Briefcase className="h-5 w-5 text-brand-purple" />
+                  <div className="w-10 h-10 bg-brand-purple-light dark:bg-gray-800 rounded-full flex items-center justify-center flex-shrink-0">
+                    <Briefcase className="h-5 w-5 text-brand-purple dark:text-brand-purple-light" />
                   </div>
                   <div>
-                    <h4 className="font-medium">Improve Transparency</h4>
-                    <p className="text-sm text-gray-600 mt-1">Make the hiring process clearer for everyone.</p>
+                    <h4 className="font-medium dark:text-gray-100">Improve Transparency</h4>
+                    <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">Make the hiring process clearer for everyone.</p>
                   </div>
                 </div>
               </div>
@@ -516,8 +518,8 @@ const ReviewSection = ({ title, content }: { title: string; content?: string }) 
   if (!content) return null;
   return (
     <div>
-      <p className="text-xs text-gray-500 font-medium mb-0.5">{title}</p>
-      <p className="text-sm whitespace-pre-wrap bg-gray-50 p-2 rounded border border-gray-100">{content}</p>
+      <p className="text-xs text-gray-500 dark:text-gray-400 font-medium mb-0.5">{title}</p>
+      <p className="text-sm whitespace-pre-wrap bg-gray-50 dark:bg-gray-800 p-2 rounded border border-gray-100 dark:border-gray-600 dark:text-gray-200">{content}</p>
     </div>
   );
 };

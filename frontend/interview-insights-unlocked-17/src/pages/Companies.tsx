@@ -36,13 +36,13 @@ const Companies = () => {
     <>
       <Navbar />
       {/* Outer wrapper with padding */}
-      <div className="min-h-screen bg-gray-50 pt-20 pb-16">
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-950 pt-20 pb-16">
         <div className="container mx-auto px-4"> {/* Inner container */}
 
           {/* Page Header */}
           <div className="text-center mb-12">
-            <h1 className="text-4xl font-bold mb-4">Browse Companies</h1>
-            <p className="text-gray-600 max-w-2xl mx-auto">
+            <h1 className="text-4xl font-bold mb-4 dark:text-gray-50">Browse Companies</h1>
+            <p className="text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
               Explore interview experiences from top companies across the industry. Filter and find insights that matter to you.
             </p>
           </div>
@@ -51,7 +51,7 @@ const Companies = () => {
           <div className="max-w-md mx-auto mb-10 relative">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
             <Input
-              className="pl-10 pr-4 py-6 bg-white"
+              className="pl-10 pr-4 py-6 bg-white dark:bg-gray-800 dark:text-gray-100 dark:border-gray-700"
               placeholder="Search companies..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
@@ -60,12 +60,12 @@ const Companies = () => {
 
           {/* Loading State */}
           {isLoading && (
-            <div className="text-center py-10">Loading companies...</div>
+            <div className="text-center py-10 dark:text-gray-300">Loading companies...</div>
           )}
 
           {/* Error State */}
           {error && (
-            <div className="text-center py-10 text-red-600">
+            <div className="text-center py-10 text-red-600 dark:text-red-400">
               Error fetching companies: {error.message}
             </div>
           )}
@@ -78,16 +78,16 @@ const Companies = () => {
                   {filteredCompanies.map((company, index) => (
                     <Card 
                       key={index} 
-                      className="hover:shadow-md transition-shadow cursor-pointer"
+                      className="hover:shadow-md transition-shadow cursor-pointer dark:bg-gray-900 dark:border-gray-800 dark:hover:border-brand-purple-light"
                       onClick={() => handleCompanyClick(company.name)}
                     >
                       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                        <CardTitle className="text-lg font-medium">{company.name}</CardTitle>
+                        <CardTitle className="text-lg font-medium dark:text-gray-50">{company.name}</CardTitle>
                         <CompanyBadge name={company.name} size="md" />
                       </CardHeader>
                       <CardContent>
                         {/* Removed duplicate CardTitle from here */}
-                        <CardDescription className="text-sm">
+                        <CardDescription className="text-sm dark:text-gray-300">
                           {company.interview_count} interview experiences
                         </CardDescription>
                       </CardContent>
@@ -96,7 +96,7 @@ const Companies = () => {
                 </div>
               ) : (
                  /* No Results Found (after filtering) */
-                <div className="text-center py-10 text-gray-500">No companies found matching your search.</div>
+                <div className="text-center py-10 text-gray-500 dark:text-gray-400">No companies found matching your search.</div>
               )}
             </>
           )}

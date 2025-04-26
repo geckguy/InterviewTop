@@ -205,9 +205,9 @@ const Search = () => {
   return (
     <div className="min-h-screen flex flex-col">
       <Navbar />
-      <main className="flex-grow bg-gray-50 pt-20 pb-16">
+      <main className="flex-grow bg-gray-50 dark:bg-gray-900 pt-20 pb-16">
         <div className="container mx-auto px-4">
-          <h1 className="text-3xl font-bold mb-6 text-center md:text-left">Search Interview Experiences</h1>
+          <h1 className="text-3xl font-bold mb-6 text-center md:text-left dark:text-gray-50">Search Interview Experiences</h1>
 
           {/* Search bar */}
           <form onSubmit={handleSearchSubmit} className="relative mb-8 max-w-2xl mx-auto">
@@ -215,10 +215,14 @@ const Search = () => {
               placeholder="Search by company, role, keywords..." // Updated placeholder
               value={searchQuery}
               onChange={e => setSearchQuery(e.target.value)}
-              className="pl-12 pr-24 py-6 text-base rounded-full shadow-sm" // Rounded, larger text
+              className="pl-12 pr-24 py-6 text-base rounded-full shadow-sm dark:bg-gray-800 dark:border-gray-700 dark:text-gray-100 dark:placeholder:text-gray-400" // Rounded, larger text
             />
-            <SearchIcon className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
-            <Button type="submit" size="lg" className="absolute right-2 top-1/2 -translate-y-1/2 bg-brand-purple rounded-full px-6"> {/* Rounded */}
+            <SearchIcon className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400 dark:text-gray-500" />
+            <Button 
+              type="submit" 
+              size="lg" 
+              className="absolute right-2 top-1/2 -translate-y-1/2 bg-brand-purple hover:bg-brand-purple-dark text-white rounded-full px-6 dark:bg-[#7E69AB] dark:text-white dark:hover:bg-[#6d5a95]"
+            > 
               Search
             </Button>
           </form>
@@ -227,7 +231,7 @@ const Search = () => {
           <div className="md:hidden mb-4">
             <Button
               variant="outline"
-              className="w-full flex justify-center items-center gap-2" // Centered content
+              className="w-full flex justify-center items-center gap-2 dark:text-gray-300 dark:border-gray-700 dark:hover:bg-gray-800" // Centered content
               onClick={() => setShowFilters(!showFilters)}
             >
               <Filter className="h-4 w-4" />
@@ -249,77 +253,104 @@ const Search = () => {
               {/* Add other filters here if needed */}
             </aside>
 
-            {/* Results */}
-            <section className="md:w-3/4 lg:w-4/5">
-              {/* Initial Loading Placeholder */}
-              {loading && results.length === 0 && (
-                   <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-                       {[...Array(6)].map((_, i) => ( // Skeleton loaders
-                           <Card key={i} className="p-4 space-y-3 animate-pulse">
-                               <div className="flex items-center space-x-3">
-                                   <div className="h-10 w-10 bg-gray-200 rounded-md"></div>
-                                   <div className="space-y-1.5">
-                                       <div className="h-4 w-32 bg-gray-200 rounded"></div>
-                                       <div className="h-3 w-24 bg-gray-200 rounded"></div>
-                                   </div>
-                               </div>
-                               <div className="h-3 w-full bg-gray-200 rounded"></div>
-                               <div className="h-3 w-5/6 bg-gray-200 rounded"></div>
-                               <div className="flex justify-between pt-2">
-                                   <div className="h-3 w-16 bg-gray-200 rounded"></div>
-                                   <div className="h-3 w-12 bg-gray-200 rounded"></div>
-                               </div>
-                           </Card>
-                       ))}
-                   </div>
-               )}
-
-              {/* Results Grid */}
-              {!loading && results.length > 0 && (
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-                  {/* Use results directly, backend handles sorting */}
-                  {results.map((i) => (
-                    <InterviewCard key={i.id} {...i} />
-                  ))}
+            {/* Main content */}
+            <div className="md:w-3/4 lg:w-4/5"> {/* Adjusted width */}
+              {/* Results Count */}
+              {!loading && (
+                <div className="mb-6 flex flex-wrap justify-between items-center gap-3">
+                  <h2 className="text-lg font-medium dark:text-gray-300">
+                    {totalCount > 0 ? (
+                      <>Found <span className="font-bold text-brand-purple dark:text-brand-purple-light">{totalCount}</span> experience{totalCount !== 1 ? 's' : ''}</>
+                    ) : (
+                      <>No experiences found</>
+                    )}
+                  </h2>
+                  {/*
+                  <Select value={sortBy} onValueChange={setSortBy}>
+                    <SelectTrigger className="w-[180px]">
+                      <SelectValue placeholder="Sort By" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="recent">Most Recent</SelectItem>
+                      <SelectItem value="oldest">Oldest First</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  */}
                 </div>
               )}
 
-              {/* Load More Button */}
-              {!loading && hasMore && ( // Show only if not initial load and has more
-                  <div className="mt-8 flex justify-center">
-                      <Button
-                          variant="outline"
-                          disabled={loadingMore}
-                          onClick={handleLoadMore}
-                          className="min-w-[120px]" // Give button min width
-                      >
-                          {loadingMore ? (
-                              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                          ) : (
-                              "Load more"
-                          )}
-                      </Button>
-                  </div>
+              {/* Loading State */}
+              {loading && (
+                <div className="flex justify-center items-center py-20">
+                  <Loader2 className="mr-2 h-6 w-6 animate-spin text-brand-purple dark:text-brand-purple-light" />
+                  <span className="text-gray-600 dark:text-gray-400">Searching experiences...</span>
+                </div>
               )}
 
-
-              {/* No Results Found */}
+              {/* No Results */}
               {!loading && results.length === 0 && (
-                <Card className="p-8 text-center mt-6 border-dashed">
-                  <h3 className="font-semibold text-lg">No results found</h3>
-                  <p className="text-gray-600 mt-1">Try adjusting your search query or filters.</p>
+                <Card className="dark:bg-gray-800 dark:border-gray-700">
+                  <CardContent className="py-8 text-center">
+                    <h3 className="text-lg font-medium mb-2 dark:text-gray-200">No experiences found</h3>
+                    <p className="text-gray-500 dark:text-gray-400 mb-4">Try adjusting your search or filters.</p>
+                    {/* Reset filters button */}
+                    {(selectedCompanies.length > 0 || searchQuery) && (
+                      <Button variant="outline" onClick={() => {
+                        setSearchQuery('');
+                        setSelectedCompanies([]);
+                        navigate('/search', { replace: true });
+                      }} className="dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700">
+                        Reset All Filters
+                      </Button>
+                    )}
+                  </CardContent>
                 </Card>
               )}
 
-               {/* End of Results Message */}
-              {!loadingMore && !hasMore && results.length > 0 && (
-                  <p className="text-center text-gray-500 mt-8 text-sm">You've reached the end of the results.</p>
+              {/* Grid of cards */}
+              {!loading && results.length > 0 && (
+                <>
+                  <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
+                    {results.map((card) => (
+                       card.id ? <InterviewCard key={card.id} {...card} /> : null
+                    ))}
+                  </div>
+
+                  {/* Load More Button */}
+                  {hasMore && (
+                    <div className="mt-8 text-center">
+                      <Button 
+                        onClick={handleLoadMore} 
+                        disabled={loadingMore}
+                        variant="outline"
+                        className="dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700"
+                      >
+                        {loadingMore ? (
+                          <>
+                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                            Loading...
+                          </>
+                        ) : (
+                          <>Load More</>
+                        )}
+                      </Button>
+                    </div>
+                  )}
+
+                  {/* End of results message */}
+                  {!hasMore && results.length > 0 && (
+                    <p className="text-center text-gray-500 dark:text-gray-400 mt-8">
+                      {results.length >= totalCount 
+                        ? "You've reached the end of results." 
+                        : "That's all we could find for now."}
+                    </p>
+                  )}
+                </>
               )}
-            </section>
+            </div>
           </div>
         </div>
       </main>
-      
     </div>
   );
 };

@@ -47,8 +47,8 @@ const CompanyFilter = ({
   const displayedCompanies = showAll ? sortedCompanies : sortedCompanies.slice(0, 8);
   
   return (
-    <div className="p-4 bg-white rounded-lg shadow-sm border border-gray-100">
-      <h3 className="text-lg font-semibold mb-3">Filter by Company</h3>
+    <div className="p-4 bg-white dark:bg-gray-900 rounded-lg shadow-sm border border-gray-100 dark:border-gray-700">
+      <h3 className="text-lg font-semibold mb-3 dark:text-gray-50">Filter by Company</h3>
       
       <div className="flex flex-wrap gap-2">
         <button
@@ -56,8 +56,8 @@ const CompanyFilter = ({
           className={cn(
             "px-3 py-1.5 rounded-full text-sm font-medium transition-colors",
             selectedCompanies.length === 0
-              ? "bg-brand-purple text-white"
-              : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+              ? "bg-brand-purple text-white dark:bg-[#7E69AB] dark:text-white"
+              : "bg-gray-100 text-gray-700 hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700"
           )}
         >
           All
@@ -78,14 +78,14 @@ const CompanyFilter = ({
               className={cn(
                 "px-3 py-1.5 rounded-full text-sm font-medium transition-colors flex items-center space-x-1.5",
                 isSelected
-                  ? "bg-brand-purple text-white"
-                  : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                  ? "bg-brand-purple text-white dark:bg-[#7E69AB] dark:text-white"
+                  : "bg-gray-100 text-gray-700 hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700"
               )}
             >
               <CompanyBadge 
                 name={company} 
                 size="sm" 
-                className={isSelected ? "bg-white bg-opacity-20" : ""} 
+                className={isSelected ? "bg-white bg-opacity-20 dark:bg-gray-900 dark:bg-opacity-20" : ""} 
               />
               <span>{company}</span>
             </button>
@@ -95,7 +95,7 @@ const CompanyFilter = ({
         {sortedCompanies.length > 8 && (
           <button
             onClick={() => setShowAll(!showAll)}
-            className="px-3 py-1.5 rounded-full text-sm font-medium bg-white text-brand-purple border border-brand-purple hover:bg-brand-purple-light transition-colors"
+            className="px-3 py-1.5 rounded-full text-sm font-medium bg-white text-brand-purple border border-brand-purple hover:bg-brand-purple-light transition-colors dark:bg-gray-900 dark:text-brand-purple-light dark:border-brand-purple-light dark:hover:bg-gray-800"
           >
             {showAll ? "Show Less" : `+${sortedCompanies.length - 8} more`}
           </button>

@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Menu, X, LogIn, UserPlus, LogOut } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
+import { ThemeToggle } from "@/components/theme-toggle";
 
 const Navbar: React.FC = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -18,23 +19,23 @@ const Navbar: React.FC = () => {
   const isActive = (path: string) => location.pathname === path || (path === '/search' && location.pathname.startsWith('/interview/')); // Keep search active on post page
 
   return (
-    <nav className="bg-white shadow-sm fixed w-full z-50"> {/* Increased z-index */}
+    <nav className="bg-white shadow-sm fixed w-full z-50 dark:bg-gray-900 dark:border-gray-800 dark:shadow-none dark:border-b transition-colors"> {/* Added dark mode styling */}
       <div className="container mx-auto px-4 py-3 flex justify-between items-center">
         {/* Logo / Brand */}
-        <Link to="/" className="text-xl font-bold text-brand-purple">
-          InterviewInsights
+        <Link to="/" className="text-xl font-bold text-brand-purple dark:text-[#7E69AB]">
+          InterviewLog
         </Link>
 
         {/* Desktop Navigation */}
         <div className="hidden md:flex items-center space-x-6">
           <Link
             to="/"
-            className={`transition-colors text-sm ${isActive('/') ? 'text-brand-purple font-medium' : 'text-gray-600 hover:text-brand-purple'}`}>
+            className={`transition-colors text-sm ${isActive('/') ? 'text-brand-purple dark:text-[#7E69AB] font-medium' : 'text-gray-600 dark:text-gray-300 hover:text-brand-purple dark:hover:text-[#7E69AB]'}`}>
             Home
           </Link>
           <Link
             to="/companies"
-            className={`transition-colors text-sm ${isActive('/companies') ? 'text-brand-purple font-medium' : 'text-gray-600 hover:text-brand-purple'}`}>
+            className={`transition-colors text-sm ${isActive('/companies') ? 'text-brand-purple dark:text-[#7E69AB] font-medium' : 'text-gray-600 dark:text-gray-300 hover:text-brand-purple dark:hover:text-[#7E69AB]'}`}>
             Companies
           </Link>
 
@@ -42,7 +43,7 @@ const Navbar: React.FC = () => {
             <>
               <Link
                 to="/dashboard"
-                className={`transition-colors text-sm ${isActive('/dashboard') ? 'text-brand-purple font-medium' : 'text-gray-600 hover:text-brand-purple'}`}>
+                className={`transition-colors text-sm ${isActive('/dashboard') ? 'text-brand-purple dark:text-[#7E69AB] font-medium' : 'text-gray-600 dark:text-gray-300 hover:text-brand-purple dark:hover:text-[#7E69AB]'}`}>
                 Dashboard
               </Link>
               {/* --- REMOVE EXPLORE LINK --- */}
@@ -56,7 +57,7 @@ const Navbar: React.FC = () => {
                {/* --- END REMOVE EXPLORE LINK --- */}
               <Link
                 to="/search"
-                className={`transition-colors text-sm ${isActive('/search') ? 'text-brand-purple font-medium' : 'text-gray-600 hover:text-brand-purple'}`}>
+                className={`transition-colors text-sm ${isActive('/search') ? 'text-brand-purple dark:text-[#7E69AB] font-medium' : 'text-gray-600 dark:text-gray-300 hover:text-brand-purple dark:hover:text-[#7E69AB]'}`}>
                 Search
               </Link>
             </>
@@ -64,16 +65,19 @@ const Navbar: React.FC = () => {
 
           <Link
             to="/about"
-            className={`transition-colors text-sm ${isActive('/about') ? 'text-brand-purple font-medium' : 'text-gray-600 hover:text-brand-purple'}`}>
+            className={`transition-colors text-sm ${isActive('/about') ? 'text-brand-purple dark:text-[#7E69AB] font-medium' : 'text-gray-600 dark:text-gray-300 hover:text-brand-purple dark:hover:text-[#7E69AB]'}`}>
             About
           </Link>
+
+          {/* Theme Toggle */}
+          <ThemeToggle />
 
           {/* Auth Buttons */}
           {isAuthenticated ? (
             <Button
               variant="outline"
               size="sm" // Smaller button
-              className="ml-4"
+              className="ml-4 dark:text-gray-300 dark:border-gray-700"
               onClick={handleSignOut}>
               <LogOut className="mr-1.5 h-4 w-4" /> {/* Adjusted margin */}
               Sign Out
@@ -81,13 +85,13 @@ const Navbar: React.FC = () => {
           ) : (
             <>
               <Link to="/signin">
-                <Button variant="outline" size="sm" className="ml-4">
+                <Button variant="outline" size="sm" className="ml-4 dark:text-gray-300 dark:border-gray-700">
                   <LogIn className="mr-1.5 h-4 w-4" />
                   Sign In
                 </Button>
               </Link>
               <Link to="/signup">
-                <Button size="sm" className="ml-2 bg-brand-purple hover:bg-brand-purple-dark">
+                <Button size="sm" className="ml-2 bg-brand-purple hover:bg-brand-purple-dark dark:bg-[#7E69AB] dark:text-white dark:hover:bg-[#6d5a95]">
                   <UserPlus className="mr-1.5 h-4 w-4" />
                   Sign Up
                 </Button>
@@ -97,8 +101,11 @@ const Navbar: React.FC = () => {
         </div>
 
         {/* Mobile menu toggle */}
-        <div className="md:hidden flex items-center">
-          <Button variant="ghost" size="icon" onClick={toggleMobileMenu}>
+        <div className="md:hidden flex items-center space-x-2">
+          {/* Theme Toggle - Mobile */}
+          <ThemeToggle />
+          
+          <Button variant="ghost" size="icon" onClick={toggleMobileMenu} className="dark:text-gray-300">
             {mobileMenuOpen ? (
               <X className="w-5 h-5" />
             ) : (
@@ -111,18 +118,18 @@ const Navbar: React.FC = () => {
 
       {/* Mobile Navigation */}
       {mobileMenuOpen && (
-        <div className="md:hidden bg-white shadow-lg border-t border-gray-100 py-4 px-4 absolute w-full left-0 animate-fade-in"> {/* Added absolute positioning */}
+        <div className="md:hidden bg-white dark:bg-gray-900 shadow-lg dark:shadow-none border-t border-gray-100 dark:border-gray-800 py-4 px-4 absolute w-full left-0 animate-fade-in"> {/* Added dark mode styling */}
           <div className="flex flex-col space-y-2"> {/* Reduced spacing */}
             <Link
               to="/"
               onClick={() => setMobileMenuOpen(false)}
-              className={`block px-3 py-2 rounded-md text-base ${isActive('/') ? 'text-brand-purple font-medium bg-brand-purple-light' : 'text-gray-700 hover:text-brand-purple hover:bg-gray-50'}`}>
+              className={`block px-3 py-2 rounded-md text-base ${isActive('/') ? 'text-brand-purple dark:text-[#7E69AB] font-medium bg-brand-purple-light dark:bg-opacity-10' : 'text-gray-700 dark:text-gray-300 hover:text-brand-purple dark:hover:text-[#7E69AB] hover:bg-gray-50 dark:hover:bg-gray-800'}`}>
               Home
             </Link>
             <Link
               to="/companies"
               onClick={() => setMobileMenuOpen(false)}
-              className={`block px-3 py-2 rounded-md text-base ${isActive('/companies') ? 'text-brand-purple font-medium bg-brand-purple-light' : 'text-gray-700 hover:text-brand-purple hover:bg-gray-50'}`}>
+              className={`block px-3 py-2 rounded-md text-base ${isActive('/companies') ? 'text-brand-purple dark:text-[#7E69AB] font-medium bg-brand-purple-light dark:bg-opacity-10' : 'text-gray-700 dark:text-gray-300 hover:text-brand-purple dark:hover:text-[#7E69AB] hover:bg-gray-50 dark:hover:bg-gray-800'}`}>
               Companies
             </Link>
 
@@ -131,7 +138,7 @@ const Navbar: React.FC = () => {
                 <Link
                   to="/dashboard"
                   onClick={() => setMobileMenuOpen(false)}
-                  className={`block px-3 py-2 rounded-md text-base ${isActive('/dashboard') ? 'text-brand-purple font-medium bg-brand-purple-light' : 'text-gray-700 hover:text-brand-purple hover:bg-gray-50'}`}>
+                  className={`block px-3 py-2 rounded-md text-base ${isActive('/dashboard') ? 'text-brand-purple dark:text-[#7E69AB] font-medium bg-brand-purple-light dark:bg-opacity-10' : 'text-gray-700 dark:text-gray-300 hover:text-brand-purple dark:hover:text-[#7E69AB] hover:bg-gray-50 dark:hover:bg-gray-800'}`}>
                   Dashboard
                 </Link>
                 {/* --- REMOVE EXPLORE LINK --- */}
@@ -147,7 +154,7 @@ const Navbar: React.FC = () => {
                 <Link
                   to="/search"
                   onClick={() => setMobileMenuOpen(false)}
-                  className={`block px-3 py-2 rounded-md text-base ${isActive('/search') ? 'text-brand-purple font-medium bg-brand-purple-light' : 'text-gray-700 hover:text-brand-purple hover:bg-gray-50'}`}>
+                  className={`block px-3 py-2 rounded-md text-base ${isActive('/search') ? 'text-brand-purple dark:text-[#7E69AB] font-medium bg-brand-purple-light dark:bg-opacity-10' : 'text-gray-700 dark:text-gray-300 hover:text-brand-purple dark:hover:text-[#7E69AB] hover:bg-gray-50 dark:hover:bg-gray-800'}`}>
                   Search
                 </Link>
               </>
@@ -156,15 +163,15 @@ const Navbar: React.FC = () => {
             <Link
               to="/about"
               onClick={() => setMobileMenuOpen(false)}
-              className={`block px-3 py-2 rounded-md text-base ${isActive('/about') ? 'text-brand-purple font-medium bg-brand-purple-light' : 'text-gray-700 hover:text-brand-purple hover:bg-gray-50'}`}>
+              className={`block px-3 py-2 rounded-md text-base ${isActive('/about') ? 'text-brand-purple dark:text-[#7E69AB] font-medium bg-brand-purple-light dark:bg-opacity-10' : 'text-gray-700 dark:text-gray-300 hover:text-brand-purple dark:hover:text-[#7E69AB] hover:bg-gray-50 dark:hover:bg-gray-800'}`}>
               About
             </Link>
 
-            <div className="pt-4 border-t border-gray-100 mt-2 flex flex-col space-y-2">
+            <div className="pt-4 border-t border-gray-100 dark:border-gray-800 mt-2 flex flex-col space-y-2">
               {isAuthenticated ? (
                 <Button
                   variant="outline"
-                  className="w-full justify-center" // Center text
+                  className="w-full justify-center dark:border-gray-700 dark:text-gray-300" // Center text
                   onClick={handleSignOut}>
                   <LogOut className="mr-2 h-4 w-4" />
                   Sign Out
@@ -175,7 +182,7 @@ const Navbar: React.FC = () => {
                     to="/signin"
                     onClick={() => setMobileMenuOpen(false)}
                     className="block w-full">
-                    <Button variant="outline" className="justify-center w-full">
+                    <Button variant="outline" className="justify-center w-full dark:border-gray-700 dark:text-gray-300">
                       <LogIn className="mr-2 h-4 w-4" />
                       Sign In
                     </Button>
@@ -184,7 +191,7 @@ const Navbar: React.FC = () => {
                     to="/signup"
                     onClick={() => setMobileMenuOpen(false)}
                     className="block w-full">
-                    <Button className="bg-brand-purple hover:bg-brand-purple-dark w-full justify-center">
+                    <Button className="bg-brand-purple hover:bg-brand-purple-dark dark:bg-[#7E69AB] dark:text-white dark:hover:bg-[#6d5a95] w-full justify-center">
                       <UserPlus className="mr-2 h-4 w-4" />
                       Sign Up
                     </Button>
