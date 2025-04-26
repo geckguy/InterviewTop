@@ -10,7 +10,7 @@ const About = () => {
         <div className="container mx-auto px-4">
           <div className="max-w-2xl mx-auto text-center"> {/* Centered text, slightly narrower */}
             {/* Main Header */}
-            <h1 className="text-4xl font-bold mb-4">About InterviewInsights</h1>
+            <h1 className="text-4xl font-bold mb-4">About InterviewLog</h1>
             <p className="text-gray-600 mb-8"> {/* Increased bottom margin */}
               Real interview experiences. Real preparation.
             </p>
@@ -18,7 +18,7 @@ const About = () => {
             {/* Condensed Content */}
             <div className="prose prose-lg max-w-none text-left md:text-center space-y-4"> {/* Larger text, centered on medium screens */}
               <p>
-                InterviewInsights aims to demystify the hiring process by providing a platform where individuals share genuine interview experiences from various companies.
+                InterviewLog aims to demystify the hiring process by providing a platform where individuals share genuine interview experiences from various companies.
               </p>
               <p>
                 Our goal is simple: leverage collective knowledge to help everyone prepare more effectively. By learning from the successes and challenges of others, you can gain valuable insights into company processes, question patterns, and expected difficulties.

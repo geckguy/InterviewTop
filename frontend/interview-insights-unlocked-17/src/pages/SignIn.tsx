@@ -99,52 +99,88 @@ const SignIn = () => {
 
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gray-50 px-4 py-12 sm:px-6 lg:px-8">
+    <div className="flex min-h-screen items-center justify-center bg-gray-50 dark:bg-gray-900 px-4 py-12 sm:px-6 lg:px-8">
       <div className="w-full max-w-md space-y-8">
         <div className="text-center">
-          <Link to="/" className="text-3xl font-bold text-brand-purple">
-            InterviewInsights
+          <Link to="/" className="text-3xl font-bold text-brand-purple dark:text-[#7E69AB]">
+            InterviewLog
           </Link>
-          <h2 className="mt-6 text-2xl font-bold tracking-tight text-gray-900">
+          <h2 className="mt-6 text-2xl font-bold tracking-tight text-gray-900 dark:text-gray-50">
             Sign in to your account
           </h2>
-          <p className="mt-2 text-sm text-gray-600">
+          <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
             Or{" "}
-            <Link to="/signup" className="font-medium text-brand-purple hover:text-brand-purple-dark">
+            <Link to="/signup" className="font-medium text-brand-purple hover:text-brand-purple-dark dark:text-brand-purple-light dark:hover:text-brand-purple">
               create a new account
             </Link>
           </p>
         </div>
 
-        <Card>
+        <Card className="dark:bg-gray-800 dark:border-gray-700">
           <CardHeader>
-            <CardTitle>Welcome back</CardTitle>
-            <CardDescription>Enter your credentials or sign in with Google</CardDescription>
+            <CardTitle className="dark:text-gray-100">Welcome back</CardTitle>
+            <CardDescription className="dark:text-gray-400">Enter your credentials or sign in with Google</CardDescription>
           </CardHeader>
           <CardContent>
             {/* Email/Password Form */}
             <form onSubmit={handleEmailPasswordSubmit} className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="email">Email</Label>
-                <Input id="email" type="email" placeholder="name@example.com" value={email} onChange={(e) => setEmail(e.target.value)} required disabled={isLoading || isGoogleLoading} />
+                <Label htmlFor="email" className="dark:text-gray-200">Email</Label>
+                <Input 
+                  id="email" 
+                  type="email" 
+                  placeholder="name@example.com" 
+                  value={email} 
+                  onChange={(e) => setEmail(e.target.value)} 
+                  required 
+                  disabled={isLoading || isGoogleLoading} 
+                  className="dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100 dark:placeholder:text-gray-400"
+                />
               </div>
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
-                  <Label htmlFor="password">Password</Label>
+                  <Label htmlFor="password" className="dark:text-gray-200">Password</Label>
                   {/* <Link to="/forgot-password" ...>Forgot password?</Link> */}
                 </div>
                 <div className="relative">
-                  <Input id="password" type={showPassword ? "text" : "password"} placeholder="••••••••" value={password} onChange={(e) => setPassword(e.target.value)} required disabled={isLoading || isGoogleLoading} />
-                  <Button type="button" variant="ghost" size="icon" className="absolute right-2 top-1/2 -translate-y-1/2 h-7 w-7" onClick={() => setShowPassword(!showPassword)} aria-label={showPassword ? "Hide password" : "Show password"} disabled={isLoading || isGoogleLoading}>
+                  <Input 
+                    id="password" 
+                    type={showPassword ? "text" : "password"} 
+                    placeholder="••••••••" 
+                    value={password} 
+                    onChange={(e) => setPassword(e.target.value)} 
+                    required 
+                    disabled={isLoading || isGoogleLoading}
+                    className="dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100 dark:placeholder:text-gray-400"
+                  />
+                  <Button 
+                    type="button" 
+                    variant="ghost" 
+                    size="icon" 
+                    className="absolute right-2 top-1/2 -translate-y-1/2 h-7 w-7 dark:text-gray-300 dark:hover:bg-gray-600" 
+                    onClick={() => setShowPassword(!showPassword)} 
+                    aria-label={showPassword ? "Hide password" : "Show password"} 
+                    disabled={isLoading || isGoogleLoading}
+                  >
                     {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                   </Button>
                 </div>
               </div>
               <div className="flex items-center space-x-2">
-                <Checkbox id="remember" checked={rememberMe} onCheckedChange={(checked) => { if (typeof checked === 'boolean') { setRememberMe(checked); } }} disabled={isLoading || isGoogleLoading} />
-                <label htmlFor="remember" className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">Remember me</label>
+                <Checkbox 
+                  id="remember" 
+                  checked={rememberMe} 
+                  onCheckedChange={(checked) => { if (typeof checked === 'boolean') { setRememberMe(checked); } }} 
+                  disabled={isLoading || isGoogleLoading}
+                  className="dark:border-gray-500 dark:data-[state=checked]:bg-brand-purple-light dark:data-[state=checked]:border-brand-purple-light"
+                />
+                <label htmlFor="remember" className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 dark:text-gray-300">Remember me</label>
               </div>
-              <Button type="submit" className="w-full bg-brand-purple hover:bg-brand-purple-dark" disabled={isLoading || isGoogleLoading}>
+              <Button 
+                type="submit" 
+                className="w-full bg-brand-purple hover:bg-brand-purple-dark text-white dark:bg-[#7E69AB] dark:text-white dark:hover:bg-[#6d5a95]" 
+                disabled={isLoading || isGoogleLoading}
+              >
                 {isLoading ? (
                   <span className="flex items-center justify-center gap-2"><Loader2 className="h-4 w-4 animate-spin" /> Signing in...</span>
                 ) : (
@@ -155,15 +191,19 @@ const SignIn = () => {
 
             {/* Divider */}
             <div className="my-6 flex items-center">
-              <div className="flex-grow border-t border-gray-200"></div>
-              <span className="mx-4 flex-shrink text-sm text-gray-500">OR</span>
-              <div className="flex-grow border-t border-gray-200"></div>
+              <div className="flex-grow border-t border-gray-200 dark:border-gray-600"></div>
+              <span className="mx-4 flex-shrink text-sm text-gray-500 dark:text-gray-400">OR</span>
+              <div className="flex-grow border-t border-gray-200 dark:border-gray-600"></div>
             </div>
 
             {/* Google Sign In Button */}
              <div className="flex justify-center">
                 {isGoogleLoading ? (
-                     <Button variant="outline" className="w-full" disabled>
+                     <Button 
+                       variant="outline" 
+                       className="w-full dark:border-gray-600 dark:text-gray-300" 
+                       disabled
+                     >
                          <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Processing...
                      </Button>
                 ) : (
@@ -173,8 +213,7 @@ const SignIn = () => {
                         useOneTap // Optional: Enable One Tap sign-in prompt
                         shape="pill" // Optional: Button shape
                         width="320px" // Optional: Adjust width
-                        theme="outline" // Optional: theme
-                        disabled={isLoading} // Disable if email/pass login is happening
+                        theme={isLoading ? "filled_black" : "outline"} // Use dynamic theme based on loading state
                       />
                 )}
              </div>

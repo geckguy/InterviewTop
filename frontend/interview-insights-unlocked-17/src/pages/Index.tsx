@@ -162,9 +162,9 @@ const Index = () => {
 
         {/* ---------- Featured ---------- */}
         {featuredInterviews.length > 0 && (
-          <section className="py-12 bg-white">
+          <section className="py-12 bg-white dark:bg-gray-900">
             <div className="container mx-auto px-4">
-              <h2 className="text-3xl font-bold mb-6 text-center md:text-left">Featured Experiences</h2>
+              <h2 className="text-3xl font-bold mb-6 text-center md:text-left dark:text-gray-50">Featured Experiences</h2>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 {featuredInterviews.map((i) => (
                   <InterviewCard key={i.id} {...i} />
@@ -175,14 +175,14 @@ const Index = () => {
         )}
 
         {/* ---------- Recent & filters ---------- */}
-        <section className="py-12 bg-gray-50">
+        <section className="py-12 bg-gray-50 dark:bg-gray-800">
           <div className="container mx-auto px-4">
             <div className="flex justify-between items-center mb-6">
-              <h2 className="text-3xl font-bold">Recent Experiences</h2>
+              <h2 className="text-3xl font-bold dark:text-gray-50">Recent Experiences</h2>
               {/* --- MODIFIED BUTTON: Points to /search --- */}
               <Button
                  variant="ghost"
-                 className="text-brand-purple hover:bg-brand-purple-light"
+                 className="text-brand-purple hover:bg-brand-purple-light dark:text-brand-purple-light dark:hover:bg-gray-700"
                  onClick={() => navigate('/search')} // Use navigate
               >
                 View All
@@ -205,7 +205,7 @@ const Index = () => {
               {/* cards */}
               <div className="md:w-3/4 lg:w-4/5"> {/* Adjusted width */}
                 {/* Display loading indicator for filter changes */}
-                {loading && <p className="text-center text-gray-500 mb-4">Loading...</p>}
+                {loading && <p className="text-center text-gray-500 dark:text-gray-400 mb-4">Loading...</p>}
 
                 {!loading && filteredInterviews.length > 0 ? (
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -215,7 +215,7 @@ const Index = () => {
                   </div>
                 ) : (
                   // Show message only if not loading and no results
-                  !loading && <p className="text-gray-600 text-center py-10">No interviews found{selectedCompanies.length > 0 ? ` for selected companies` : ''}.</p>
+                  !loading && <p className="text-gray-600 dark:text-gray-400 text-center py-10">No interviews found{selectedCompanies.length > 0 ? ` for selected companies` : ''}.</p>
                 )}
               </div>
             </div>
