@@ -34,22 +34,6 @@ const HeroSection = () => {
                 </Button>
               </Link>
             </div>
-            
-            <div className="mt-8 flex items-center">
-              <div className="flex -space-x-2">
-                {[...Array(4)].map((_, i) => (
-                  <div
-                    key={i}
-                    className="w-8 h-8 rounded-full bg-gray-200 border-2 border-white flex items-center justify-center text-xs font-medium text-gray-600"
-                  >
-                    {['JD', 'AM', 'TS', 'KL'][i]}
-                  </div>
-                ))}
-              </div>
-              <div className="ml-3 text-sm text-gray-600">
-                Joined by <span className="font-semibold text-brand-purple">10,000+</span> professionals
-              </div>
-            </div>
           </div>
           <div className="md:w-1/2 relative">
             <div className="bg-white rounded-lg shadow-xl p-6 border border-gray-100">
