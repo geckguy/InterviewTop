@@ -13,7 +13,7 @@ const StatsSection = () => {
               <div className="p-3 bg-blue-100 rounded-md text-blue-600 mr-4">
                 <BookOpen className="h-6 w-6" />
               </div>
-              <h3 className="text-xl font-bold text-gray-900">10,000+</h3>
+              <h3 className="text-xl font-bold text-gray-900">5,000+</h3>
             </div>
             <p className="text-gray-700">Interview experiences shared by the community</p>
           </div>
@@ -33,9 +33,9 @@ const StatsSection = () => {
               <div className="p-3 bg-green-100 rounded-md text-green-600 mr-4">
                 <Users className="h-6 w-6" />
               </div>
-              <h3 className="text-xl font-bold text-gray-900">100,000+</h3>
+              <h3 className="text-xl font-bold text-gray-900">Join early.</h3>
             </div>
-            <p className="text-gray-700">Candidates supported in their interview journey</p>
+            <p className="text-gray-700">Be part of the first wave shaping the interview journey</p>
           </div>
         </div>
       </div>
