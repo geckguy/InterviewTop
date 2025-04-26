@@ -1,0 +1,20 @@
+
+Re-optimizing dependencies because lockfile has changed
+
+  VITE v5.4.10  ready in 1069 ms
+
+  ➜  Local:   http://localhost:8080/
+  ➜  Network: http://192.168.1.5:8080/
+  ➜  press h + enter to show help
+Error: The following dependencies are imported but could not be resolved:
+
+  @react-oauth/google (imported by /Users/abhiramalluri/Documents/fluffy-broccoli/frontend/
+  @react-oauth/google (imported by /Users/abhiramalluri/Documents/fluffy-broccoli/frontend/interview-insights-unlocked-17/src/pages/SignIn.tsx)
+
+Are they installed?
+    at file:///Users/abhiramalluri/Documents/fluffy-broccoli/frontend/interview-insights-un
+    at file:///Users/abhiramalluri/Documents/fluffy-broccoli/frontend/interview-insights-unlocked-17/node_modules/vite/dist/node/chunks/dep-BWSbWtLw.js:50666:15
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async file:///Users/abhiramalluri/Documents/fluffy-broccoli/frontend/interview-insig
+    at async file:///Users/abhiramalluri/Documents/fluffy-broccoli/frontend/interview-insights-unlocked-17/node_modules/vite/dist/node/chunks/dep-BWSbWtLw.js:50171:26
+^C
