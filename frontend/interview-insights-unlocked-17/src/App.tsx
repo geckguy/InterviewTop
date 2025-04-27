@@ -8,6 +8,7 @@ import { GoogleOAuthProvider } from '@react-oauth/google';
 import { AuthProvider } from "@/hooks/useAuth";
 import { ThemeProvider } from "@/components/theme-provider";
 import PrivateRoute from "@/components/PrivateRoute";
+import AnalyticsTracker from "@/components/AnalyticsTracker";
 
 import Index from "./pages/Index";
 import Companies from "./pages/Companies";
@@ -40,6 +41,7 @@ const App = () => (
           <Sonner />
           <AuthProvider>
             <BrowserRouter>
+            <AnalyticsTracker />
               <Routes>
                 {/* Public */}
                 <Route path="/" element={<Index />} />
