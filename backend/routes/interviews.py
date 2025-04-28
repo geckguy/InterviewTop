@@ -39,6 +39,13 @@ class VisitedPostSummary(BaseModel):
         if isinstance(v, ObjectId):
             return str(v)
         return v
+    
+    @field_validator("position", "company", mode="before")
+    @classmethod
+    def ensure_string_or_none(cls, v):
+        if v is None:
+            return None
+        return str(v)  # Convert to string if not None
 
 class SaveStatusResponse(BaseModel):
     is_saved: bool
