@@ -59,7 +59,6 @@ def get_post_oid(post_id: str) -> ObjectId:
     if not ObjectId.is_valid(post_id):
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid Post ID format.")
     return ObjectId(post_id)
-
 async def _get_post_summaries(user_oid: ObjectId, field_name: str) -> List[VisitedPostSummary]:
     """Helper to fetch post summaries based on 'visited_posts' or 'saved_posts' field."""
     user_data = await users_collection.find_one(
@@ -68,29 +67,58 @@ async def _get_post_summaries(user_oid: ObjectId, field_name: str) -> List[Visit
     )
 
     if not user_data or field_name not in user_data or not user_data[field_name]:
+        print(f"No {field_name} found for user {user_oid}")
         return []
 
-    # Ensure we have a list of valid ObjectIds
-    post_ids = [oid for oid in user_data[field_name] if isinstance(oid, ObjectId)]
+    # Debug: Print raw data to see the format
+    print(f"Raw {field_name} data: {user_data[field_name]}")
+    
+    # Handle different formats of ObjectId storage
+    post_ids = []
+    for item in user_data[field_name]:
+        if isinstance(item, ObjectId):
+            post_ids.append(item)
+        elif isinstance(item, dict) and "$oid" in item:
+            try:
+                post_ids.append(ObjectId(item["$oid"]))
+            except Exception as e:
+                print(f"Error converting dict with $oid: {e}, value: {item}")
+        elif isinstance(item, str):
+            try:
+                post_ids.append(ObjectId(item))
+            except Exception as e:
+                print(f"Error converting string to ObjectId: {e}, value: {item}")
+        else:
+            print(f"Unknown format in {field_name}: {type(item)}, value: {item}")
+
     if not post_ids:
+        print(f"No valid ObjectIds found in {field_name}")
         return []
 
+    print(f"Converted {len(post_ids)} ObjectIds for {field_name}")
+    
     # Fetch the actual post documents using the IDs
     posts_cursor = filtered_posts_collection.find(
         {"_id": {"$in": post_ids}},
         # Project only fields needed for the summary
         {"_id": 1, "company": 1, "position": 1, "createdAt": 1}
-    ).sort("createdAt", -1) # Sort by creation date descending (most recent first)
+    ).sort("createdAt", -1)
 
     posts_docs = await posts_cursor.to_list(length=None)
+    print(f"Found {len(posts_docs)} documents in filtered_posts_collection for {field_name}")
 
     # Validate and return using the Pydantic model
-    # The VisitedPostSummary model handles the _id -> id conversion via alias
     try:
-        return [VisitedPostSummary.model_validate(doc) for doc in posts_docs]
+        summaries = [VisitedPostSummary.model_validate(doc) for doc in posts_docs]
+        return summaries
     except Exception as e:
         print(f"Error validating post summaries for {field_name}: {e}")
-        # Depending on strictness, could return [] or raise an error
+        # For more detailed debugging:
+        for doc in posts_docs:
+            try:
+                VisitedPostSummary.model_validate(doc)
+            except Exception as e:
+                print(f"Error validating document: {doc}, error: {e}")
         return []
 
 # --- Existing Endpoints (GET /companies-summary, GET /, GET /recent-experiences) ---
@@ -197,7 +225,6 @@ async def get_recent_experiences(limit: int = Query(5, ge=1, le=50)):
     )
     return page.experiences
 
-# --- Updated GET /{id} to use helpers ---
 @router.get("/{id}", response_model=InterviewExperience)
 async def get_interview(id: str, current_user: User = Depends(get_current_user)):
     post_oid = get_post_oid(id) # Use helper for validation
@@ -209,10 +236,13 @@ async def get_interview(id: str, current_user: User = Depends(get_current_user))
 
     # Add post to visited list (error tolerant)
     try:
+        # Store the raw ObjectId, not a dict with $oid
         await users_collection.update_one(
             {"_id": user_oid},
             {"$addToSet": {"visited_posts": post_oid}, "$set": {"updated_at": datetime.utcnow()}}
         )
+        # Add debug print
+        print(f"Added post {post_oid} to visited_posts for user {user_oid}")
     except Exception as e:
          # Log error but don't fail the request for the user
          print(f"Warning: Error updating visited posts for user {user_oid}: {e}")
