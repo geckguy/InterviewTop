@@ -153,10 +153,21 @@ async def find_interviews(
 
     if query_conditions:
          pipeline.append({"$match": query_conditions})
+ # --- Define Sorting (Corrected) ---
+    primary_sort_field = "createdAt"
+    primary_sort_order = 1 if sort_by == "date_asc" else -1 # Default is -1 (desc)
 
-    sort_stage = {"$sort": {"createdAt": 1}} if sort_by == "date_asc" else {"$sort": {"createdAt": -1}}
+    # Add is_low_quality to the sort: prioritize non-low-quality posts
+    # is_low_quality: 1 (Ascending: null/false comes before true)
+    sort_stage = {
+        "$sort": {
+            "is_low_quality": 1,        # <-- Primary Sort Key
+            primary_sort_field: primary_sort_order # <-- Secondary Sort Key
+        }
+    }
+    # --- End Corrected Sorting ---
     facet = pipeline + [{"$facet": {"metadata": [{"$count": "total"}],
-                                  "data": [sort_stage, {"$skip": skip}, {"$limit": limit}]}}]
+                                  "data": [sort_stage, {"$skip": skip}, {"$limit": limit}]}}] # Use the combined sort
 
     try:
         res = await filtered_posts_collection.aggregate(facet).to_list(length=1)
@@ -246,7 +257,9 @@ async def get_similar(id: str, limit: int = Query(3, ge=1, le=20), current_user:
     }
 
     # Fetch similar posts
-    cursor = filtered_posts_collection.find(query).sort("createdAt", -1).limit(limit)
+    cursor = filtered_posts_collection.find(query).sort(
+        [("is_low_quality", 1), ("createdAt", -1)] # <-- Use compound sort
+    ).limit(limit)
     docs = await cursor.to_list(length=limit)
 
     # Validate and return
