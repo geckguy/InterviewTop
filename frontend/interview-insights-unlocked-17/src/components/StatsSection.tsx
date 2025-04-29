@@ -12,9 +12,9 @@ const StatsSection = () => {
               <div className="p-3 bg-blue-100 dark:bg-blue-900 dark:bg-opacity-30 rounded-md text-blue-600 dark:text-blue-300 mr-4">
                 <BookOpen className="h-6 w-6" />
               </div>
-              <h3 className="text-xl font-bold text-gray-900 dark:text-gray-50">5,000+</h3>
+              <h3 className="text-xl font-bold text-gray-900 dark:text-gray-50">3,000+</h3>
             </div>
-            <p className="text-gray-700 dark:text-gray-300">Interview logs shared by the community</p>
+            <p className="text-gray-700 dark:text-gray-300">Interview logs in the database</p>
           </div>
           
           <div className="bg-white dark:bg-gray-900 p-6 rounded-lg shadow-sm border border-gray-100 dark:border-gray-700">
