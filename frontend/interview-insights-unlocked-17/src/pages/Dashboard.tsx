@@ -4,7 +4,7 @@
 import { useState } from "react"; // Import useState
 import { Button } from "@/components/ui/button";
 // Added History, Bookmark icons
-import { MessageSquare, Search, Loader2, History, Bookmark } from "lucide-react";
+import { MessageSquare, Search, Loader2, History, Bookmark, Plus } from "lucide-react";
 import { Navigate, Link, useLocation, useNavigate } from "react-router-dom";
 import Navbar from "@/components/Navbar";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -145,15 +145,14 @@ const Dashboard = () => {
                   <CardTitle className="dark:text-gray-50">Quick Actions</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-2 dark:bg-gray-800">
-                  <Button
-                     variant="default"
-                     size="sm"
-                     className="w-full justify-start bg-brand-purple hover:bg-brand-purple-dark text-white dark:bg-[#7E69AB] dark:text-white dark:hover:bg-[#6d5a95]"
-                     onClick={() => handleNavigate('/share-experience')}
-                   >
-                    <MessageSquare className="mr-2 h-4 w-4" />
-                    Share Interview Experience
-                  </Button>
+                  <Link to="/share-experience">
+                    <Button
+                      className="w-full justify-start bg-brand-purple hover:bg-brand-purple-dark text-white dark:bg-[#634B93] dark:text-gray-100 dark:hover:bg-[#543F7E]"
+                    >
+                      <Plus className="mr-2 h-4 w-4" />
+                      Share New Experience
+                    </Button>
+                  </Link>
                   <Button
                      variant="outline"
                      size="sm"

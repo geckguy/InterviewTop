@@ -56,7 +56,7 @@ const CompanyFilter = ({
           className={cn(
             "px-3 py-1.5 rounded-full text-sm font-medium transition-colors",
             selectedCompanies.length === 0
-              ? "bg-brand-purple text-white dark:bg-[#7E69AB] dark:text-white"
+              ? "bg-brand-purple text-white dark:bg-[#634B93] dark:text-gray-100"
               : "bg-gray-100 text-gray-700 hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700"
           )}
         >
@@ -78,7 +78,7 @@ const CompanyFilter = ({
               className={cn(
                 "px-3 py-1.5 rounded-full text-sm font-medium transition-colors flex items-center space-x-1.5",
                 isSelected
-                  ? "bg-brand-purple text-white dark:bg-[#7E69AB] dark:text-white"
+                  ? "bg-brand-purple text-white dark:bg-[#634B93] dark:text-gray-100"
                   : "bg-gray-100 text-gray-700 hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700"
               )}
             >

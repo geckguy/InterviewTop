@@ -2,6 +2,7 @@
 
 import Navbar from "../components/Navbar";
 import { Card, CardContent } from "@/components/ui/card";
+import { BookOpen, Users, Briefcase } from "lucide-react";
 
 const About = () => {
   return (
@@ -17,7 +18,7 @@ const About = () => {
             <Card className="my-6 dark:border-gray-700">
               <CardContent className="pt-6 dark:bg-gray-900">
                 <div className="space-y-6">
-                  <p className="text-brand-purple dark:text-[#7E69AB] font-semibold text-lg text-center">
+                  <p className="text-brand-purple dark:text-[#977ECE] font-semibold text-lg text-center">
                     Real Interview Experiences. Real Logs.
                   </p>
                   
@@ -27,7 +28,7 @@ const About = () => {
                   </p>
 
                   <p className="text-gray-700 dark:text-gray-300">
-                    <span className="font-bold text-brand-purple dark:text-[#7E69AB]">Our mission is simple:</span> to make interview preparation more transparent, insightful, and effective by harnessing the power of shared experiences.
+                    <span className="font-bold text-brand-purple dark:text-[#977ECE]">Our mission is simple:</span> to make interview preparation more transparent, insightful, and effective by harnessing the power of shared experiences.
                   </p>
 
                   <p className="text-gray-700 dark:text-gray-300">
@@ -38,6 +39,38 @@ const About = () => {
                     Whether you're gearing up for your next opportunity or sharing your journey to help others, InterviewLog is your hub.
                     Let's make interview preparation better, together.
                   </p>
+                  
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-8">
+                    <div className="bg-white dark:bg-gray-800 p-5 rounded-lg shadow-sm border border-gray-100 dark:border-gray-700">
+                      <div className="flex items-center mb-3">
+                        <div className="p-2 bg-blue-100 dark:bg-blue-900 dark:bg-opacity-30 rounded-md text-blue-600 dark:text-blue-300 mr-3">
+                          <BookOpen className="h-5 w-5" />
+                        </div>
+                        <h3 className="text-lg font-bold text-gray-900 dark:text-gray-50">5,000+</h3>
+                      </div>
+                      <p className="text-gray-700 dark:text-gray-300 text-sm">Interview logs shared by the community</p>
+                    </div>
+                    
+                    <div className="bg-white dark:bg-gray-800 p-5 rounded-lg shadow-sm border border-gray-100 dark:border-gray-700">
+                      <div className="flex items-center mb-3">
+                        <div className="p-2 bg-purple-100 dark:bg-[#634B93] dark:bg-opacity-30 rounded-md text-purple-600 dark:text-purple-300 mr-3">
+                          <Briefcase className="h-5 w-5" />
+                        </div>
+                        <h3 className="text-lg font-bold text-gray-900 dark:text-gray-50">500+</h3>
+                      </div>
+                      <p className="text-gray-700 dark:text-gray-300 text-sm">Top tech companies represented</p>
+                    </div>
+                    
+                    <div className="bg-white dark:bg-gray-800 p-5 rounded-lg shadow-sm border border-gray-100 dark:border-gray-700">
+                      <div className="flex items-center mb-3">
+                        <div className="p-2 bg-green-100 dark:bg-green-900 dark:bg-opacity-30 rounded-md text-green-600 dark:text-green-300 mr-3">
+                          <Users className="h-5 w-5" />
+                        </div>
+                        <h3 className="text-lg font-bold text-gray-900 dark:text-gray-50">Join early</h3>
+                      </div>
+                      <p className="text-gray-700 dark:text-gray-300 text-sm">Be part of the first wave shaping the interview journey</p>
+                    </div>
+                  </div>
                 </div>
               </CardContent>
             </Card>

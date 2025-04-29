@@ -221,9 +221,15 @@ const Search = () => {
             <Button 
               type="submit" 
               size="lg" 
-              className="absolute right-2 top-1/2 -translate-y-1/2 bg-brand-purple hover:bg-brand-purple-dark text-white rounded-full px-6 dark:bg-[#7E69AB] dark:text-white dark:hover:bg-[#6d5a95]"
+              className="absolute right-2 top-1/2 -translate-y-1/2 bg-brand-purple hover:bg-brand-purple-dark text-white rounded-full px-6 dark:bg-[#634B93] dark:text-gray-100 dark:hover:bg-[#543F7E]"
             > 
-              Search
+              {loading ? (
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              ) : (
+                <>
+                  <SearchIcon className="mr-2 h-4 w-4" /> Search
+                </>
+              )}
             </Button>
           </form>
 

@@ -114,7 +114,7 @@ const SignUp = () => {
       <div className="w-full max-w-md space-y-8">
         {/* Header */}
         <div className="text-center">
-          <Link to="/" className="text-3xl font-bold text-brand-purple dark:text-[#7E69AB]">
+          <Link to="/" className="text-3xl font-bold text-brand-purple dark:text-[#977ECE]">
             InterviewLog
           </Link>
           <h2 className="mt-6 text-2xl font-bold tracking-tight text-gray-900 dark:text-gray-50">
@@ -122,7 +122,7 @@ const SignUp = () => {
           </h2>
           <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
             Already have an account?{" "}
-            <Link to="/signin" className="font-medium text-brand-purple hover:text-brand-purple-dark dark:text-[#7E69AB] dark:hover:text-brand-purple">
+            <Link to="/signin" className="font-medium text-brand-purple hover:text-brand-purple-dark dark:text-[#977ECE] dark:hover:text-brand-purple">
               Sign in
             </Link>
           </p>
@@ -201,7 +201,7 @@ const SignUp = () => {
               {/* Submit Button */}
               <Button
                 type="submit"
-                className="w-full bg-brand-purple hover:bg-brand-purple-dark dark:bg-[#7E69AB] dark:text-white dark:hover:bg-[#6d5a95] mt-4"
+                className="w-full bg-brand-purple hover:bg-brand-purple-dark dark:bg-[#634B93] dark:text-gray-100 dark:hover:bg-[#543F7E] mt-4"
                 disabled={isLoading || isGoogleLoading}
               >
                 {isLoading ? (
