@@ -5,7 +5,7 @@ import Navbar from "@/components/Navbar";
 import HeroSection from "@/components/HeroSection";
 import CompanyFilter from "@/components/CompanyFilter";
 import InterviewCard from "@/components/InterviewCard";
-import { fetchRecent, fetchInterviews } from "@/api/interviews";
+import { fetchInterviews } from "@/api/interviews";
 import { toCard } from "@/utils/mapInterview";
 import { Button } from "@/components/ui/button";
 // import { Filter } from "lucide-react"; // Filter icon not used here
@@ -18,33 +18,36 @@ const Index = () => {
   const [selectedCompanies, setSelectedCompanies] = useState<string[]>([]);
   const [companies,           setCompanies]           = useState<string[]>([]);
   const [allAvailableCompanies, setAllAvailableCompanies] = useState<string[]>([]); // Store all available companies
-  const [featuredInterviews,  setFeaturedInterviews]  = useState<any[]>([]); // Consider using InterviewCardProps[] type
   const [filteredInterviews,  setFilteredInterviews]  = useState<any[]>([]); // Consider using InterviewCardProps[] type
   const navigate = useNavigate(); // Initialize navigate
 
   /* ------------------------ fetch on mount and initial data load ----------------------- */
   useEffect(() => {
-    let isMounted = true; // Flag to prevent state updates on unmounted component
-    
-    // Initial data fetch - gets all companies and featured interviews
+    let isMounted = true;
+
+    // Initial data fetch - gets all companies and initial set of interviews
     const fetchInitialData = async () => {
       setLoading(true);
       setError(null);
       try {
-        // Fetch featured interviews on initial load
-        const recentData = await fetchRecent(3);
-        
+        // Fetch initial interviews to populate the list and get companies
+        const initialData = await fetchInterviews({ limit: 12 }); // Fetch initial batch
+
         if (isMounted) {
-          setFeaturedInterviews(recentData.map(toCard));
-          
-          // Also fetch all available companies on first load
-          const allData = await fetchInterviews({ limit: 100 });
+           setFilteredInterviews(initialData.experiences.map(toCard)); // Show initial interviews
+
+          // Also fetch all available companies from a potentially larger set if needed,
+          // or derive from the initial fetch if sufficient. For simplicity, let's use the initial fetch.
+          // If you need *all* companies, you might need a separate endpoint or a larger initial fetch.
           const uniqueCompanies = Array.from(
-            new Set(allData.experiences.map(e => e.company).filter(Boolean))
+            new Set(initialData.experiences.map(e => e.company).filter(Boolean))
           ) as string[];
-          
+
+          // To get *all* companies more reliably, fetch a larger initial set or use fetchCompaniesSummary if available/suitable
+          // Example: fetchCompaniesSummary().then(summary => setAllAvailableCompanies(summary.map(c => c.name)));
+          // Using initial fetch for now:
           setAllAvailableCompanies(uniqueCompanies);
-          setCompanies(uniqueCompanies); // Initialize companies with all available companies
+
         }
       } catch (err: any) {
         console.error("Error fetching initial data:", err);
@@ -57,36 +60,41 @@ const Index = () => {
         }
       }
     };
-    
+
     fetchInitialData();
-    
-    // Cleanup function
+
     return () => {
       isMounted = false;
     };
-  }, []); // Run only once on mount
+  }, []);
   
   /* ------------------------ fetch filtered data when filters change ----------------------- */
   useEffect(() => {
-    let isMounted = true; // Flag to prevent state updates on unmounted component
-    
+    // Skip the effect if it's the initial load (handled above)
+    if (loading && filteredInterviews.length === 0) return;
+
+    let isMounted = true;
     const fetchFilteredData = async () => {
-      setLoading(true);
+       // Set loading only for subsequent fetches, not the initial one
+       setLoading(true);
+       setError(null); // Clear previous errors
       try {
-        // Fetch interviews based on selected companies
-        const filteredData = await fetchInterviews({ 
-          company: selectedCompanies.length > 0 ? selectedCompanies.join(',') : undefined, 
-          limit: 12 
+        const companyFilter = selectedCompanies.length > 0 ? selectedCompanies.join(',') : undefined;
+        console.log("Fetching with companies:", companyFilter); // Debug log
+
+        const filteredData = await fetchInterviews({
+          company: companyFilter,
+          limit: 12
         });
 
         if (isMounted) {
           setFilteredInterviews(filteredData.experiences.map(toCard));
-          // Important: We don't update the companies list here to preserve all filter options
         }
       } catch (err: any) {
         console.error("Error fetching filtered data:", err);
         if (isMounted) {
           setError(err.message || "Failed to load filtered experiences.");
+           setFilteredInterviews([]); // Clear results on error
         }
       } finally {
         if (isMounted) {
@@ -95,36 +103,33 @@ const Index = () => {
       }
     };
 
+     // Run fetchFilteredData only when selectedCompanies actually changes *after* initial load
     fetchFilteredData();
 
-    // Cleanup function
+
     return () => {
       isMounted = false;
     };
-  }, [selectedCompanies]); // Dependency array - only run when selected companies change
+  }, [selectedCompanies]); // Dependency array
 
-  // Handler for selecting a company
-  const handleSelectCompany = (company: string) => {
-    if (!selectedCompanies.includes(company)) {
-      const newSelectedCompanies = [...selectedCompanies, company];
-      setSelectedCompanies(newSelectedCompanies);
-    }
-  };
+   // --- Handlers for CompanyFilter (assuming multi-select filter component) ---
+   const handleSelectCompany = (company: string) => {
+       setSelectedCompanies(prev =>
+           prev.includes(company) ? prev : [...prev, company]
+       );
+   };
 
-  // Handler for clearing a company
-  const handleClearCompany = (company: string) => {
-    const newSelectedCompanies = selectedCompanies.filter(c => c !== company);
-    setSelectedCompanies(newSelectedCompanies);
-  };
+   const handleClearCompany = (company: string) => {
+       setSelectedCompanies(prev => prev.filter(c => c !== company));
+   };
 
-  // Handler for clearing all companies
-  const handleClearAllCompanies = () => {
-    setSelectedCompanies([]);
-  };
+   const handleClearAllCompanies = () => {
+       setSelectedCompanies([]);
+   };
 
   /* --------------------------- UI --------------------------- */
   // Improved Loading/Error states
-  if (loading && filteredInterviews.length === 0 && featuredInterviews.length === 0) { // Show loading only initially
+  if (loading && filteredInterviews.length === 0) { // Show loading only initially
       return (
           <div className="min-h-screen flex flex-col">
               <Navbar />
@@ -159,19 +164,6 @@ const Index = () => {
         <HeroSection />
 
         {/* ---------- Featured ---------- */}
-        {featuredInterviews.length > 0 && (
-          <section className="py-12 bg-white dark:bg-gray-900">
-            <div className="container mx-auto px-4">
-              <h2 className="text-3xl font-bold mb-6 text-center md:text-left dark:text-gray-50">Featured Experiences</h2>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                {featuredInterviews.map((i) => (
-                  <InterviewCard key={i.id} {...i} />
-                ))}
-              </div>
-            </div>
-          </section>
-        )}
-
         {/* ---------- Recent & filters ---------- */}
         <section className="py-12 bg-gray-50 dark:bg-gray-800">
           <div className="container mx-auto px-4">

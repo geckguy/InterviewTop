@@ -5,7 +5,7 @@ from datetime import datetime
 from bson import ObjectId
 
 class InterviewRound(BaseModel):
-    round_number: int
+    round_number: Optional[int] = None
     type: Optional[str] = None
     questions: List[str] = []
 

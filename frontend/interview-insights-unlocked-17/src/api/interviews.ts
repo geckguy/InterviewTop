@@ -161,21 +161,6 @@ export const fetchInterviews = async (params?: any) => {
   };
 };
 
-export const fetchRecent = async (limit = 5) => {
-  const response = await api.get<RawInterview[]>("/interviews/recent-experiences", {
-    params: { limit },
-  });
-
-  if (!Array.isArray(response.data)) {
-      console.error("Expected an array from /interviews/recent-experiences, received:", response.data);
-      return [];
-  }
-  return response.data.map(e => ({
-    ...e,
-    id: e._id,
-  }));
-};
-
 export const fetchInterview = async (id: string): Promise<InterviewExperience> => {
   if (!id || id === 'undefined') {
       console.error("fetchInterview called with invalid ID:", id);
