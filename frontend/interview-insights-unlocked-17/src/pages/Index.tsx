@@ -3,7 +3,6 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Navbar from "@/components/Navbar";
 import HeroSection from "@/components/HeroSection";
-import StatsSection from "@/components/StatsSection";
 import CompanyFilter from "@/components/CompanyFilter";
 import InterviewCard from "@/components/InterviewCard";
 import { fetchRecent, fetchInterviews } from "@/api/interviews";
@@ -158,7 +157,6 @@ const Index = () => {
 
       <main className="flex-grow">
         <HeroSection />
-        <StatsSection />
 
         {/* ---------- Featured ---------- */}
         {featuredInterviews.length > 0 && (

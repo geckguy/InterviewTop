@@ -102,7 +102,7 @@ const SignIn = () => {
     <div className="flex min-h-screen items-center justify-center bg-gray-50 dark:bg-gray-900 px-4 py-12 sm:px-6 lg:px-8">
       <div className="w-full max-w-md space-y-8">
         <div className="text-center">
-          <Link to="/" className="text-3xl font-bold text-brand-purple dark:text-[#7E69AB]">
+          <Link to="/" className="text-3xl font-bold text-brand-purple dark:text-[#977ECE]">
             InterviewLog
           </Link>
           <h2 className="mt-6 text-2xl font-bold tracking-tight text-gray-900 dark:text-gray-50">
@@ -110,7 +110,7 @@ const SignIn = () => {
           </h2>
           <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
             Or{" "}
-            <Link to="/signup" className="font-medium text-brand-purple hover:text-brand-purple-dark dark:text-brand-purple-light dark:hover:text-brand-purple">
+            <Link to="/signup" className="font-medium text-brand-purple hover:text-brand-purple-dark dark:text-[#977ECE] dark:hover:text-brand-purple">
               create a new account
             </Link>
           </p>
@@ -178,7 +178,7 @@ const SignIn = () => {
               </div>
               <Button 
                 type="submit" 
-                className="w-full bg-brand-purple hover:bg-brand-purple-dark text-white dark:bg-[#7E69AB] dark:text-white dark:hover:bg-[#6d5a95]" 
+                className="w-full bg-brand-purple hover:bg-brand-purple-dark text-white dark:bg-[#634B93] dark:text-gray-100 dark:hover:bg-[#543F7E]" 
                 disabled={isLoading || isGoogleLoading}
               >
                 {isLoading ? (

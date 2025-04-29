@@ -9,7 +9,7 @@ const HeroSection = () => {
         <div className="flex flex-col md:flex-row items-center">
           <div className="md:w-1/2 mb-10 md:mb-0 md:pr-10">
             <h1 className="text-4xl md:text-5xl font-bold text-gray-900 dark:text-gray-50 leading-tight mb-4">
-              Real Interview Experiences. <span className="text-brand-purple dark:text-[#7E69AB]">Real Logs.</span>
+              Real Interview Experiences. <span className="text-brand-purple dark:text-[#977ECE]">Real Logs.</span>
             </h1>
             <p className="text-lg text-gray-700 dark:text-gray-300 mb-8 max-w-md">
               Learn from thousands of shared interview logs across top companies to ace your next interview.
@@ -18,7 +18,7 @@ const HeroSection = () => {
               <Link to="/search">
                 <Button
                   size="lg"
-                  className="bg-brand-purple hover:bg-brand-purple-dark text-white dark:bg-[#7E69AB] dark:text-white dark:hover:bg-[#6d5a95]"
+                  className="bg-brand-purple hover:bg-brand-purple-dark text-white dark:bg-[#634B93] dark:text-gray-100 dark:hover:bg-[#543F7E]"
                 >
                   <Search className="mr-2 h-4 w-4" /> Search Experiences
                 </Button>
@@ -27,7 +27,7 @@ const HeroSection = () => {
                 <Button
                   variant="outline"
                   size="lg"
-                  className="border-brand-purple text-brand-purple hover:bg-brand-purple-light/20 dark:border-[#7E69AB] dark:text-[#7E69AB] dark:hover:bg-gray-800 dark:hover:border-[#6d5a95]"
+                  className="border-brand-purple text-brand-purple hover:bg-brand-purple-light/20 dark:border-[#634B93] dark:text-[#977ECE] dark:hover:bg-gray-800 dark:hover:border-[#543F7E]"
                 >
                   Share Your Experience <ArrowRight className="ml-2 h-4 w-4" />
                 </Button>

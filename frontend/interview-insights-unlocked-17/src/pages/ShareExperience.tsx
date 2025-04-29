@@ -11,7 +11,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/components/ui/use-toast";
-import { Check, Info, Briefcase, Building, FileText, Star, AlertTriangle, Users, Loader2, Link as LinkIcon } from "lucide-react"; // Added Loader2, LinkIcon
+import { Check, Info, Briefcase, Building, FileText, Star, AlertTriangle, Users, Loader2, Link as LinkIcon, ArrowRight } from "lucide-react"; // Added Loader2, LinkIcon, ArrowRight
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 // Removed Tabs imports as they are not used in the simplified structure
 // import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -464,15 +464,18 @@ Round 3-5: Onsite loop (coding, system design, behavioral)..."
                       Back
                     </Button>
                     {formStep < 4 ? (
-                      <Button type="button" className="bg-brand-purple hover:bg-brand-purple-dark dark:bg-[#7E69AB] dark:text-white dark:hover:bg-[#6d5a95]" onClick={nextStep} disabled={isLoading}>
-                        Continue
+                      <Button type="button" className="bg-brand-purple hover:bg-brand-purple-dark dark:bg-[#493B65] dark:text-white dark:hover:bg-[#3d3154]" onClick={nextStep} disabled={isLoading}>
+                        Continue <ArrowRight className="ml-2 h-4 w-4" />
                       </Button>
                     ) : (
-                      <Button type="submit" className="bg-brand-purple hover:bg-brand-purple-dark dark:bg-[#7E69AB] dark:text-white dark:hover:bg-[#6d5a95] min-w-[150px]" disabled={isLoading}>
+                      <Button type="submit" className="bg-brand-purple hover:bg-brand-purple-dark dark:bg-[#493B65] dark:text-white dark:hover:bg-[#3d3154] min-w-[150px]" disabled={isLoading}>
                         {isLoading ? (
-                            <span className="flex items-center justify-center gap-2"><Loader2 className="h-4 w-4 animate-spin" /> Submitting...</span>
+                          <span className="flex items-center">
+                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                            Submitting...
+                          </span>
                         ) : (
-                            "Submit Experience"
+                          "Submit Experience"
                         )}
                       </Button>
                     )}
