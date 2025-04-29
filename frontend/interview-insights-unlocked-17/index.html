@@ -3,24 +3,83 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>interview-insights-unlocked</title>
-    <meta name="description" content="Lovable Generated Project" />
-    <meta name="author" content="Lovable" />
 
-    <meta property="og:title" content="interview-insights-unlocked" />
-    <meta property="og:description" content="Lovable Generated Project" />
+    <!-- 1. Title Tag (CRITICAL) -->
+    <!-- Be descriptive, include keywords naturally, mention the brand name -->
+    <title>InterviewLog | Real Interview Experiences & Preparation</title>
+
+    <!-- 2. Meta Description (CRITICAL) -->
+    <!-- Compelling summary (~155-160 chars) for search results. Include keywords. -->
+    <meta name="description" content="Prepare for tech interviews with thousands of real software engineer, PM, and other role experiences shared by the community on InterviewLog. Find company insights, questions, and tips." />
+
+    <!-- 3. Canonical URL (Important for preventing duplicate content) -->
+    <!-- Replace with your actual production domain -->
+    <link rel="canonical" href="https://www.interviewlog.xyz/" /> 
+    <!-- Adjust the href if your main page is different, e.g., /home -->
+
+    <!-- 5. Open Graph Tags (for Social Media Sharing - Facebook, LinkedIn, etc.) -->
+    <meta property="og:title" content="InterviewLog | Real Interview Experiences & Preparation" />
+    <meta property="og:description" content="Prepare for tech interviews with thousands of real software engineer, PM, and other role experiences shared by the community on InterviewLog." />
     <meta property="og:type" content="website" />
-    <meta property="og:image" content="https://lovable.dev/opengraph-image-p98pqg.png" />
+    <meta property="og:url" content="https://www.interviewlog.xyz/" /> <!-- Use your production URL -->
+    <meta property="og:site_name" content="InterviewLog" />
 
-    <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:site" content="@lovable_dev" />
-    <meta name="twitter:image" content="https://lovable.dev/opengraph-image-p98pqg.png" />
+    <!-- 6. Twitter Card Tags (for Twitter Sharing) -->
+    <meta name="twitter:title" content="InterviewLog | Real Interview Experiences & Preparation" />
+    <meta name="twitter:description" content="Prepare for tech interviews with thousands of real software engineer, PM, and other role experiences shared by the community on InterviewLog." />
+    <!-- <meta name="twitter:site" content="@YourTwitterHandle"> --> <!-- Optional: Add your site's Twitter handle -->
+
+    <!-- 7. Meta Keywords (Less important now, but doesn't hurt) -->
+    <!-- Focus on a few core terms -->
+    <meta name="keywords" content="interview experiences, interview preparation, tech interviews, software engineer interview, product manager interview, interview questions, interviewlog" />
+
+    <!-- 8. Author (Informational - Optional) -->
+    <meta name="author" content="InterviewLog Team"/> <!-- Or your name/company -->
+
+    <!-- 9. Basic Schema Markup (Helps search engines understand your site) -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebSite",
+      "name": "InterviewLog",
+      "url": "https://www.interviewlog.com/",
+      "description": "A platform for sharing and finding real interview experiences to help with tech job preparation.",
+       "potentialAction": {
+         "@type": "SearchAction",
+         "target": {
+           "@type": "EntryPoint",
+           "urlTemplate": "https://www.interviewlog.com/search?q={search_term_string}"
+         },
+         "query-input": "required name=search_term_string"
+       }
+    }
+    </script>
+        <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-N0N1ZVSC95"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'G-N0N1ZVSC95');
+    </script>
+
   </head>
 
   <body>
-    <div id="root"></div>
-    <!-- IMPORTANT: DO NOT REMOVE THIS SCRIPT TAG OR THIS VERY COMMENT! -->
-    <script src="https://cdn.gpteng.co/gptengineer.js" type="module"></script>
+    <!-- Root element for your React app -->
+    <div id="root">
+        <!-- 10. Optional: Noscript Fallback -->
+        <!-- Content shown if JavaScript is disabled. Basic message is better than nothing. -->
+        <noscript>
+            <h1>Welcome to InterviewLog</h1>
+            <p>This site requires JavaScript to function. Please enable JavaScript in your browser.</p>
+            <p>InterviewLog helps you prepare for tech interviews with real experiences shared by the community.</p>
+        </noscript>
+    </div>
+
+    <!-- IMPORTANT: Keep necessary scripts -->
+    <script src="https://cdn.gpteng.co/gptengineer.js" type="module"></script> 
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>
