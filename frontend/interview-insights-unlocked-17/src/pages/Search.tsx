@@ -212,7 +212,7 @@ const Search = () => {
           {/* Search bar */}
           <form onSubmit={handleSearchSubmit} className="relative mb-8 max-w-2xl mx-auto">
             <Input
-              placeholder="Search by company, role, keywords..." // Updated placeholder
+              placeholder="Search by company, role,..." // Updated placeholder
               value={searchQuery}
               onChange={e => setSearchQuery(e.target.value)}
               className="pl-12 pr-24 py-6 text-base rounded-full shadow-sm dark:bg-gray-800 dark:border-gray-700 dark:text-gray-100 dark:placeholder:text-gray-400" // Rounded, larger text
