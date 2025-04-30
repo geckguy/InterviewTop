@@ -49,6 +49,13 @@ const App = () => (
                 <Route path="/about" element={<About />} />
                 <Route path="/signin" element={<SignIn />} />
                 <Route path="/signup" element={<SignUp />} />
+                 {/* --- NEW: Public route for featured interviews --- */}
+                {/* Pass a prop to indicate it's public */}
+                <Route
+                  path="/public/interview/:id"
+                  element={<InterviewPost isPublic={true} />}
+                />
+                {/* --- END NEW Public Route --- */}
                 {/* Protected */}
                 <Route
                   path="/dashboard"
