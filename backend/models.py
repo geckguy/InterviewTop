@@ -42,7 +42,6 @@ class InterviewExperience(BaseModel):
     offer_status: Optional[str] = None
     quality_flag: Optional[int] = None
     quality_reasoning: Optional[str] = None
-    topicId: Optional[int] = None
 
     # Use createdAt for sorting and metadata
     createdAt: Optional[datetime] = None

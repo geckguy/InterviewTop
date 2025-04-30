@@ -13,7 +13,6 @@ export interface InterviewExperience {
     offer_status?: string | null;
     quality_flag?: number | null;
     quality_reasoning?: string | null;
-    topicId?: number | null;
     createdAt?: string;                  // ISO string from Mongo
   }
   
