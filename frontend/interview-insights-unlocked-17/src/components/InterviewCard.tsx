@@ -1,3 +1,4 @@
+// src/components/InterviewCard.tsx
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
 import { formatDistanceToNow } from "date-fns";
@@ -9,64 +10,98 @@ export interface InterviewCardProps {
   id: string;
   company: string;
   role: string;
-  difficulty: 'Easy' | 'Medium' | 'Hard';
-  result: 'Offer' | 'Rejected' | 'Pending';
-  date: Date;
-  likes: number;
-  comments: number;
-  excerpt: string;
+  // Allow string for flexibility if needed, but keep specific types for common cases
+  difficulty: 'Easy' | 'Medium' | 'Hard' | string;
+  result: 'Offer' | 'Rejected' | 'Pending' | 'Accepted' | string; // Added Accepted, allow string
+  date: Date | string; // Allow string date from backend too
+  likes?: number; // Make optional
+  comments?: number; // Make optional
+  excerpt?: string | null; // Allow null
+  isFeatured?: boolean; // Optional prop to identify featured cards
 }
 
-const InterviewCard = ({ 
-  id, 
-  company, 
-  role, 
-  difficulty, 
-  result, 
-  date, 
-  likes, 
-  comments, 
-  excerpt 
+// --- CORRECTED: Destructure isFeatured with a default value ---
+const InterviewCard = ({
+  id,
+  company,
+  role,
+  difficulty,
+  result,
+  date,
+  likes = 0, // Default values
+  comments = 0, // Default values
+  excerpt,
+  isFeatured = false // Destructure and provide default
 }: InterviewCardProps) => {
-  // Determine badge color based on difficulty (with dark mode variants)
+
+  // --- Helper to safely create a Date object ---
+  const getDateObject = (dateInput: Date | string | undefined): Date | null => {
+      if (!dateInput) return null;
+      try {
+          const d = new Date(dateInput);
+          return isNaN(d.getTime()) ? null : d;
+      } catch (e) {
+          return null;
+      }
+  };
+
+  const dateObject = getDateObject(date);
+
+  // Determine badge color based on difficulty
+  const difficultyString = typeof difficulty === 'string' ? difficulty.toLowerCase() : 'medium';
   const difficultyColor = {
-    Easy: "bg-green-100 text-green-800 hover:bg-green-100 dark:bg-green-900 dark:bg-opacity-30 dark:text-green-200 dark:border-green-800",
-    Medium: "bg-yellow-100 text-yellow-800 hover:bg-yellow-100 dark:bg-yellow-900 dark:bg-opacity-30 dark:text-yellow-200 dark:border-yellow-800",
-    Hard: "bg-red-100 text-red-800 hover:bg-red-100 dark:bg-red-900 dark:bg-opacity-30 dark:text-red-200 dark:border-red-800",
-  }[difficulty];
-  
-  // Determine badge color based on result (with dark mode variants)
-  const resultColor = {
-    Offer: "bg-green-100 text-green-800 hover:bg-green-100 dark:bg-green-900 dark:bg-opacity-30 dark:text-green-200 dark:border-green-800",
-    Rejected: "bg-red-100 text-red-800 hover:bg-red-100 dark:bg-red-900 dark:bg-opacity-30 dark:text-red-200 dark:border-red-800",
-    Pending: "bg-blue-100 text-blue-800 hover:bg-blue-100 dark:bg-blue-900 dark:bg-opacity-30 dark:text-blue-200 dark:border-blue-800",
-  }[result];
+      easy: "bg-green-100 text-green-800 hover:bg-green-100",
+      medium: "bg-yellow-100 text-yellow-800 hover:bg-yellow-100",
+      hard: "bg-red-100 text-red-800 hover:bg-red-100",
+      'very-hard': 'bg-red-200 text-red-900 border-red-300 hover:bg-red-200'
+  }[difficultyString] || 'bg-gray-100 text-gray-800 hover:bg-gray-100'; // Fallback
+
+  // Determine badge color based on result
+  const resultString = typeof result === 'string' ? result.toLowerCase() : 'pending';
+  const displayResult = resultString === 'accepted' ? 'offer' : resultString; // Treat accepted as offer for color
+   const resultColor = {
+      offer: "bg-green-100 text-green-800 hover:bg-green-100",
+      rejected: "bg-red-100 text-red-800 hover:bg-red-100",
+      pending: "bg-blue-100 text-blue-800 hover:bg-blue-100",
+  }[displayResult] || 'bg-gray-100 text-gray-800 hover:bg-gray-100'; // Fallback
+
+
+  // --- Determine link path based on isFeatured (using the destructured prop) ---
+  const linkPath = isFeatured ? `/public/interview/${id}` : `/interview/${id}`;
+
+  // --- Format difficulty/result for display ---
+  const displayDifficulty = typeof difficulty === 'string' ? difficulty.replace(/^\w/, c => c.toUpperCase()) : 'N/A';
+  const displayResultText = typeof result === 'string' ? result.replace(/^\w/, c => c.toUpperCase()) : 'N/A';
+
 
   return (
-    <Link to={`/interview/${id}`}>
-      <Card className="h-full transition-all hover:shadow-md hover:border-brand-purple dark:hover:border-brand-purple-light dark:bg-gray-900 dark:border-gray-800">
+    // Use the dynamic linkPath
+    <Link to={linkPath}>
+      <Card className="h-full transition-all hover:shadow-md hover:border-brand-purple">
         <CardHeader className="p-4 pb-0 flex flex-row items-start justify-between">
           <div className="flex items-center space-x-3">
-            <CompanyBadge name={company} />
+            <CompanyBadge name={company ?? 'N/A'} />
             <div>
-              <h3 className="font-semibold text-gray-900 dark:text-gray-50 leading-tight">{company}</h3>
-              <p className="text-sm text-gray-600 dark:text-gray-300">{role}</p>
+              <h3 className="font-semibold text-gray-900 leading-tight">{company ?? 'Unknown'}</h3>
+              <p className="text-sm text-gray-600">{role ?? 'Unknown Role'}</p>
             </div>
           </div>
           <div className="flex flex-col items-end space-y-2">
-            <Badge className={difficultyColor} variant="outline">
-              {difficulty}
-            </Badge>
-            <Badge className={resultColor} variant="outline">
-              {result}
-            </Badge>
+             <Badge className={difficultyColor} variant="outline">
+               {displayDifficulty}
+             </Badge>
+             <Badge className={resultColor} variant="outline">
+               {displayResultText}
+             </Badge>
           </div>
         </CardHeader>
         <CardContent className="p-4">
-          <p className="text-gray-600 dark:text-gray-300 line-clamp-3">{excerpt}</p>
+           {/* Added fallback for excerpt */}
+          <p className="text-gray-600 line-clamp-3">{excerpt || "No details provided."}</p>
         </CardContent>
-        <CardFooter className="p-4 pt-0 flex justify-between text-xs text-gray-500 dark:text-gray-400">
-          <span>{formatDistanceToNow(date, { addSuffix: true })}</span>
+        <CardFooter className="p-4 pt-0 flex justify-between text-xs text-gray-500">
+           {/* Use formatted date */}
+          <span>{dateObject ? formatDistanceToNow(dateObject, { addSuffix: true }) : 'Date unknown'}</span>
           <div className="flex space-x-3">
             <span className="flex items-center">
               <ThumbsUp className="w-3 h-3 mr-1" />
