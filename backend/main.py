@@ -10,7 +10,7 @@ app = FastAPI()
 # Add CORS middleware
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["https://interviewlog.top"],  # For development. In production, specify the actual origins
+    allow_origins=["https://www.interviewlog.top"],  # For development. In production, specify the actual origins
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
