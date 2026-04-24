@@ -27,7 +27,7 @@ API_KEYS = [
     "***REMOVED***",
     "***REMOVED***"
 ]
-if not API_KEYS or "YOUR_API_KEY" in API_KEYS[0]:
+if not API_KEYS or "YOUR_API_KEY" in API_KEYS[0] or "***REMOVED***" in API_KEYS[0]:
     raise ValueError("Please replace 'YOUR_API_KEY_n' with your actual API keys in the API_KEYS list.")
 
 current_api_key_index = 0

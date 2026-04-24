@@ -6,7 +6,7 @@ from pymongo import MongoClient
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
 # OpenAI Client Initialization (replace with your actual API key)
-client = OpenAI(api_key="***REMOVED***")
+client = OpenAI(api_key="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")
 
 # MongoDB Connection (update MONGO_URI and DB names if needed)
 MONGO_URI = "mongodb://localhost:27017"
